@@ -1,0 +1,215 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <metadata name="openFileDialog1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <metadata name="folderBrowserDialog1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>156, 17</value>
+  </metadata>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="button14.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        vAAADrwBlbxySQAAARZJREFUOE+lkz1Lw1AUhoM4iXOR4OzgLxCHItLfVUoJHcRRxKlIJ6cM0qE4O3Qo
+        HUoHBwfp7CBSOub6nNxzyU1yY7C+8HDu+XoDuUkkMsacZFn2Ct+whZ2H5D5rOMsXnSiMYIlRD64c1LoO
+        za/hhfOjrlpRvIOJpr+KuQSeNbUSg5prg5gb/NmA/g3cMnNAPIWhtqzEAMaa1kTvgWVDTAlHWi5UNeD8
+        BCuPTzEQcZ5DR0etKNyDb7DR+aDov0NxlXsYfMC5jgcNUnhzsPNlV3MtqMU6akWhZFAVPfcSp4RjLRcS
+        Axpt1ygzh8QY+tqyajPwxVz4Q4J/fcoJzvJy5Me5VC4CSH0G5YdRiNXA/42bkJvRK4yiH4Qq+ukt0SAR
+        AAAAAElFTkSuQmCC
+</value>
+  </data>
+  <data name="pictureBox3.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        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
+</value>
+  </data>
+  <data name="richTextBoxEdit1.Text" xml:space="preserve">
+    <value>COLLEGE APPLICATION TERMS AND CONDITIONS
+
+By submitting this college application form, the applicant agrees to the following terms and conditions:
+
+Accuracy of Information
+The applicant certifies that all information provided in this application is true, complete, and accurate to the best of their knowledge. Any false or misleading information may result in the rejection of the application or cancellation of admission.
+Submission of Required Documents
+The applicant agrees to submit all required documents, including identification, academic records, and other supporting materials requested by the institution. Failure to provide complete requirements may delay or invalidate the application.
+Review and Verification
+The college reserves the right to verify any information provided by the applicant. This may include contacting previous schools, references, or other relevant institutions.
+Admission Decision
+Submission of this application does not guarantee admission. The college reserves the right to accept or reject applications based on its admission policies and evaluation procedures.
+Data Privacy and Use of Information
+The applicant consents to the collection, processing, and storage of their personal information for purposes related to admission, enrollment, academic records, and institutional reporting.
+Compliance with College Policies
+If admitted, the applicant agrees to comply with all policies, rules, and regulations of the college, including academic and disciplinary standards.
+Application Processing
+The college reserves the right to modify application procedures, deadlines, and requirements when necessary.
+Agreement
+By submitting this application, the applicant confirms that they have read, understood, and agreed to these Terms and Conditions. Click to confirm.</value>
+  </data>
+  <metadata name="scrollTimer.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>323, 5</value>
+  </metadata>
+  <metadata name="timer2.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>411, 17</value>
+  </metadata>
+  <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>25</value>
+  </metadata>
+</root>
