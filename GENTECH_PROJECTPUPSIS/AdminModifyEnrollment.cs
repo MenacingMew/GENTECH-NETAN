@@ -1,427 +1,553 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Net.Mime.MediaTypeNames;
+using MySqlConnector;
 
 namespace GENTECH_PROJECTPUPSIS
 {
     public partial class AdminModifyEnrollment : UserControl
     {
+        private static string connectionString = "server=127.0.0.1;port=3306;database=gentechdb_admin;uid=root;pwd=1234;";
+
+        private string currentStudentID = "";
+        private int currentEnrollmentID = 0;
+        private int currentSemesterID = 1;
+
         public AdminModifyEnrollment()
         {
             InitializeComponent();
-
-
-
-
+            SetupDataGridView();
         }
 
-        private void DummyAdd(string code, string description, string schedule)
-        {
-
-        }
         private void SetupDataGridView()
         {
+            if (dvgModifyEnrollment == null) return;
+
             dvgModifyEnrollment.Columns.Clear();
 
-            // =========================================
-            // DESIGN
-            // =========================================
+            // Checkbox column
+            DataGridViewCheckBoxColumn chk = new DataGridViewCheckBoxColumn();
+            chk.HeaderText = "";
+            chk.Width = 40;
+
+            // Hidden Course ID column
+            DataGridViewTextBoxColumn courseId = new DataGridViewTextBoxColumn();
+            courseId.Name = "Course_ID";
+            courseId.Visible = false;
+
+            // Hidden Enrollment Detail ID column
+            DataGridViewTextBoxColumn detailId = new DataGridViewTextBoxColumn();
+            detailId.Name = "Detail_ID";
+            detailId.Visible = false;
+
+            // Subject Code
+            DataGridViewTextBoxColumn code = new DataGridViewTextBoxColumn();
+            code.HeaderText = "Subject Code";
+            code.Width = 120;
+
+            // Description
+            DataGridViewTextBoxColumn desc = new DataGridViewTextBoxColumn();
+            desc.HeaderText = "Description";
+            desc.Width = 250;
+
+            // Units
+            DataGridViewTextBoxColumn units = new DataGridViewTextBoxColumn();
+            units.HeaderText = "Units";
+            units.Width = 60;
+
+            // Schedule
+            DataGridViewTextBoxColumn sched = new DataGridViewTextBoxColumn();
+            sched.HeaderText = "Schedule";
+            sched.Width = 200;
+
+            dvgModifyEnrollment.Columns.AddRange(new DataGridViewColumn[] { chk, courseId, detailId, code, desc, units, sched });
+
             dvgModifyEnrollment.AllowUserToAddRows = false;
             dvgModifyEnrollment.RowHeadersVisible = false;
             dvgModifyEnrollment.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dvgModifyEnrollment.MultiSelect = false;
-            dvgModifyEnrollment.RowTemplate.Height = 38;
-            dvgModifyEnrollment.BorderStyle = BorderStyle.None;
-            dvgModifyEnrollment.BackgroundColor = Color.White;
-            dvgModifyEnrollment.GridColor = Color.Gainsboro;
-
-            // =========================================
-            // HEADER STYLE
-            // =========================================
-            dvgModifyEnrollment.EnableHeadersVisualStyles = false;
-            dvgModifyEnrollment.ColumnHeadersHeight = 42;
-            dvgModifyEnrollment.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
-
-            dvgModifyEnrollment.ColumnHeadersDefaultCellStyle.BackColor = Color.DarkRed;
-            dvgModifyEnrollment.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            dvgModifyEnrollment.ColumnHeadersDefaultCellStyle.Font =
-                new Font("Segoe UI", 10, FontStyle.Bold);
-
-            // =========================================
-            // CELL STYLE
-            // =========================================
-            dvgModifyEnrollment.DefaultCellStyle.Font =
-                new Font("Segoe UI", 10);
-
-            dvgModifyEnrollment.DefaultCellStyle.SelectionBackColor =
-                Color.FromArgb(240, 240, 240);
-
-            dvgModifyEnrollment.DefaultCellStyle.SelectionForeColor =
-                Color.Black;
-
-            // =========================================
-            // CHECKBOX COLUMN
-            // =========================================
-            DataGridViewCheckBoxColumn chk = new DataGridViewCheckBoxColumn();
-            chk.HeaderText = "";
-            chk.Width = 50;
-
-            // =========================================
-            // SUBJECT CODE
-            // =========================================
-            DataGridViewTextBoxColumn code = new DataGridViewTextBoxColumn();
-            code.HeaderText = "Subject Code";
-            code.Width = 160;
-
-            // =========================================
-            // DESCRIPTION
-            // =========================================
-            DataGridViewTextBoxColumn desc = new DataGridViewTextBoxColumn();
-            desc.HeaderText = "Description";
-            desc.Width = 280;
-
-            // =========================================
-            // UNITS
-            // =========================================
-            DataGridViewTextBoxColumn units = new DataGridViewTextBoxColumn();
-            units.HeaderText = "Units";
-            units.Width = 80;
-
-            // =========================================
-            // CLEANER COMBOBOX COLUMN
-            // =========================================
-            DataGridViewComboBoxColumn sched = new DataGridViewComboBoxColumn();
-
-            sched.HeaderText = "Schedules";
-            sched.Width = 260;
-            sched.FlatStyle = FlatStyle.Flat;
-
-            // Cleaner schedule options
-            sched.Items.Add("MWF • 8:00 AM - 9:00 AM");
-            sched.Items.Add("TTH • 1:00 PM - 2:30 PM");
-
-            // =========================================
-            // ADD COLUMNS
-            // =========================================
-            dvgModifyEnrollment.Columns.Add(chk);
-            dvgModifyEnrollment.Columns.Add(code);
-            dvgModifyEnrollment.Columns.Add(desc);
-            dvgModifyEnrollment.Columns.Add(units);
-            dvgModifyEnrollment.Columns.Add(sched);
-        }
-
-        private void LoadSubjects()
-        {
-            dvgModifyEnrollment.Rows.Add(false, "IT101", "Introduction to Computing", 3, "MWF • 8:00 AM - 9:00 AM");
-
-            dvgModifyEnrollment.Rows.Add(false, "CS102", "Programming 1", 3, "TTH • 1:00 PM - 2:30 PM");
-
-            dvgModifyEnrollment.Rows.Add(false, "MATH101", "College Algebra", 3, "MWF • 8:00 AM - 9:00 AM");
-
-            dvgModifyEnrollment.Rows.Add(false, "ENG101", "Purposive Communication", 3, "TTH • 1:00 PM - 2:30 PM");
-
-            dvgModifyEnrollment.Rows.Add(false, "NSTP101", "National Service Training Program", 3, "MWF • 8:00 AM - 9:00 AM");
-
-            dvgModifyEnrollment.Rows.Add(false, "PE101", "Physical Fitness", 2, "TTH • 1:00 PM - 2:30 PM");
-
-            dvgModifyEnrollment.Rows.Add(false, "HIST101", "Readings in Philippine History", 3, "MWF • 8:00 AM - 9:00 AM");
-
-            dvgModifyEnrollment.Rows.Add(false, "SCI101", "General Biology", 3, "TTH • 1:00 PM - 2:30 PM");
-        }
-
-        private void TextBox_Enter(object sender, EventArgs e)
-        {
-            var txt = sender as ComponentFactory.Krypton.Toolkit.KryptonTextBox;
-            if (txt.Text == "Student ID")
-            {
-                txt.Text = "";
-                txt.StateCommon.Content.Color1 = Color.Black;
-            }
-        }
-
-        private void TextBox_Leave(object sender, EventArgs e)
-        {
-            var txt = sender as ComponentFactory.Krypton.Toolkit.KryptonTextBox;
-
-            string noSpace = txt.Text.Replace(" ", "");
-
-            if (noSpace == "")
-            {
-                txt.Text = txt.Tag.ToString();
-                txt.StateCommon.Content.Color1 = Color.DarkGray;
-            }
-        }
-
-        private void kryptonDataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
-            if (txtStudentID.Text == "2024-00136-SM-0")
+            string searchValue = txtStudentID?.Text?.Trim();
+
+            if (string.IsNullOrEmpty(searchValue) || searchValue == "Student ID")
             {
-                dvgModifyEnrollment.Rows.Clear();
-                SetupDataGridView();
-                LoadSubjects();
-                lblName.Visible = true;
-                lblProgram.Visible = true;
-                lblSection.Visible = true;
-                lblStudentID.Visible = true;
+                MessageBox.Show("Please enter a Student ID or Email");
+                return;
+            }
 
-                btnClear.Enabled = true;
-                btnClear.PrimaryColor = Color.Maroon;
+            SearchStudent(searchValue);
+        }
 
-                lblStatus.Text = "Regular";
-                lblUnitsOverload.Text = "0";
-                lblUnitsEnrolled.Text = "23";
-                lblUnitsAllowed.Text = "23";
+        private void SearchStudent(string studentID)
+        {
+            string query = @"
+                SELECT 
+                    s.Student_ID,
+                    CONCAT(s.First_Name, ' ', s.Last_Name) as FullName,
+                    p.Program_Name,
+                    'Section A' as Section_Name,
+                    s.Year_Level
+                FROM student s
+                LEFT JOIN program p ON s.Program_ID = p.Program_ID
+                WHERE s.Student_ID = @studentID OR s.Email = @studentID
+                LIMIT 1";
 
-                btnAddSubjects.Enabled = true;
-                btnDropSubjects.Enabled = true;
-                btnAddSubjects.PrimaryColor = Color.Maroon;
-                btnDropSubjects.PrimaryColor = Color.Maroon;
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(connectionString))
+                {
+                    conn.Open();
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@studentID", studentID);
 
-                btnSaveChanges.Enabled = true;
-                btnSaveChanges.PrimaryColor = Color.Maroon;
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                currentStudentID = reader["Student_ID"].ToString();
 
+                                if (lblName != null) lblName.Text = reader["FullName"].ToString();
+                                if (lblProgram != null) lblProgram.Text = reader["Program_Name"]?.ToString() ?? "N/A";
+                                if (lblStudentID != null) lblStudentID.Text = "ID: " + currentStudentID;
+
+                                if (lblName != null) lblName.Visible = true;
+                                if (lblProgram != null) lblProgram.Visible = true;
+                                if (lblStudentID != null) lblStudentID.Visible = true;
+
+                                LoadStudentEnrolledSubjects();
+
+                                EnableButtons(true);
+                            }
+                            else
+                            {
+                                MessageBox.Show("Student not found!");
+                                ClearAll();
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
             }
         }
 
-        private void btnClear_Click(object sender, EventArgs e)
+        private void LoadStudentEnrolledSubjects()
         {
+            if (dvgModifyEnrollment == null) return;
+
             dvgModifyEnrollment.Rows.Clear();
-            lblName.Visible = false;
-            lblProgram.Visible = false;
-            lblSection.Visible = false;
-            lblStudentID.Visible = false;
 
-            btnClear.Enabled = false;
-            btnClear.PrimaryColor = Color.FromArgb(32, 34, 37);
+            currentEnrollmentID = GetOrCreateEnrollment(currentStudentID, currentSemesterID);
+            if (currentEnrollmentID == 0) return;
 
-            lblStatus.Text = "--";
-            lblUnitsOverload.Text = "--";
-            lblUnitsEnrolled.Text = "--";
-            lblUnitsAllowed.Text = "--";
+            // Simplified query - get enrollment details
+            string query = @"
+        SELECT 
+            ed.Enrollment_Detail_ID,
+            c.Course_ID,
+            c.Course_Code,
+            c.Course_Name,
+            c.Units
+        FROM enrollment_details ed
+        JOIN enrollment e ON ed.Enrollment_ID = e.Enrollment_ID
+        JOIN schedule s ON ed.Schedule_ID = s.Schedule_ID
+        JOIN course c ON s.Course_ID = c.Course_ID
+        WHERE e.Enrollment_ID = @enrollmentID";
 
-            btnAddSubjects.Enabled = false;
-            btnDropSubjects.Enabled = false;
-            btnAddSubjects.PrimaryColor = Color.FromArgb(32, 34, 37);
-            btnDropSubjects.PrimaryColor = Color.FromArgb(32, 34, 37);
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(connectionString))
+                {
+                    conn.Open();
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@enrollmentID", currentEnrollmentID);
 
-            txtStudentID.Text = txtStudentID.Tag.ToString();
-            txtStudentID.StateCommon.Content.Color1 = Color.DarkGray;
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            int totalUnits = 0;
 
-            btnSaveChanges.Enabled = false;
-            btnSaveChanges.PrimaryColor = Color.FromArgb(32, 34, 37);
+                            while (reader.Read())
+                            {
+                                int units = reader.GetInt32("Units");
+                                totalUnits += units;
+
+                                dvgModifyEnrollment.Rows.Add(
+                                    false,  // Checkbox
+                                    reader["Course_ID"].ToString(),
+                                    reader["Enrollment_Detail_ID"].ToString(),
+                                    reader["Course_Code"].ToString(),
+                                    reader["Course_Name"].ToString(),
+                                    units,
+                                    "TBA"  // Schedule placeholder
+                                );
+                            }
+
+                            UpdateSummaryLabels(totalUnits);
+
+                            if (totalUnits == 0)
+                            {
+                                // No subjects enrolled yet
+                                lblUnitsEnrolled.Text = "0";
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error loading subjects: " + ex.Message);
+            }
         }
 
-        private void btnDropSubjects_Click(object sender, EventArgs e)
+        private int GetOrCreateEnrollment(string studentID, int semesterID)
         {
-
-            for (int i = dvgModifyEnrollment.Rows.Count - 1; i >= 0; i--)
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
-                DataGridViewRow row = dvgModifyEnrollment.Rows[i];
+                conn.Open();
 
-                if (row.Cells[0].Value != null &&
-                    (bool)row.Cells[0].Value == true)
+                // Check if enrollment exists
+                string checkQuery = "SELECT Enrollment_ID FROM enrollment WHERE Student_ID = @studentID AND Semester_ID = @semesterID";
+                using (MySqlCommand cmd = new MySqlCommand(checkQuery, conn))
                 {
-                    dvgModifyEnrollment.Rows.RemoveAt(i);
+                    cmd.Parameters.AddWithValue("@studentID", studentID);
+                    cmd.Parameters.AddWithValue("@semesterID", semesterID);
+                    object result = cmd.ExecuteScalar();
+                    if (result != null && result != DBNull.Value)
+                    {
+                        return Convert.ToInt32(result);
+                    }
+                }
+
+                // Create new enrollment
+                string insertQuery = @"INSERT INTO enrollment (Student_ID, Semester_ID, Enrollment_Date, Enrollment_Status) 
+                               VALUES (@studentID, @semesterID, @date, 'Active')";
+                using (MySqlCommand cmd = new MySqlCommand(insertQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@studentID", studentID);
+                    cmd.Parameters.AddWithValue("@semesterID", semesterID);
+                    cmd.Parameters.AddWithValue("@date", DateTime.Now);
+                    cmd.ExecuteNonQuery();
+                }
+
+                // Get new enrollment ID
+                using (MySqlCommand cmd = new MySqlCommand("SELECT LAST_INSERT_ID()", conn))
+                {
+                    return Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
         }
 
         private void btnAddSubjects_Click(object sender, EventArgs e)
         {
-            // Create selection form
+            if (string.IsNullOrEmpty(currentStudentID))
+            {
+                MessageBox.Show("Please search for a student first!");
+                return;
+            }
+
+            // Create a simple selection form
             Form pickForm = new Form();
-            pickForm.Text = "Select Subject";
-            pickForm.Size = new Size(400, 300);
+            pickForm.Text = "Select Subject to Add";
+            pickForm.Size = new Size(500, 400);
             pickForm.StartPosition = FormStartPosition.CenterScreen;
+            pickForm.BackColor = Color.White;
 
-            // ListBox
+            // Create ListBox to show subjects
             ListBox listSubjects = new ListBox();
-            listSubjects.Dock = DockStyle.Top;
-            listSubjects.Height = 180;
-            listSubjects.Font = new Font("Segoe UI", 10);
+            listSubjects.Dock = DockStyle.Fill;
+            listSubjects.Font = new Font("Segoe UI", 11);
+            listSubjects.Height = 300;
 
-            // Subjects
-            listSubjects.Items.Add("IT201 - Data Structures");
-            listSubjects.Items.Add("CS202 - Algorithms");
-            listSubjects.Items.Add("WEB101 - Web Development");
-            listSubjects.Items.Add("DB101 - Database Management");
-            listSubjects.Items.Add("NET101 - Networking");
-            listSubjects.Items.Add("OOP101 - Object-Oriented Programming");
-            listSubjects.Items.Add("MOB101 - Mobile Development");
-            listSubjects.Items.Add("AI101 - Introduction to AI");
+            // Store course IDs in a parallel list
+            List<int> courseIds = new List<int>();
+            List<int> scheduleIds = new List<int>();
 
-            // Add Button
+            // Load courses from database
+            string courseQuery = @"
+        SELECT 
+            c.Course_ID,
+            c.Course_Code,
+            c.Course_Name,
+            c.Units,
+            s.Schedule_ID
+        FROM course c
+        LEFT JOIN schedule s ON c.Course_ID = s.Course_ID
+        WHERE s.Schedule_ID IS NOT NULL";
+
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(connectionString))
+                {
+                    conn.Open();
+                    using (MySqlCommand cmd = new MySqlCommand(courseQuery, conn))
+                    {
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                string display = $"{reader["Course_Code"]} - {reader["Course_Name"]} ({reader["Units"]} units)";
+                                listSubjects.Items.Add(display);
+                                courseIds.Add(reader.GetInt32("Course_ID"));
+                                scheduleIds.Add(reader.GetInt32("Schedule_ID"));
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error loading courses: " + ex.Message);
+                return;
+            }
+
+            if (listSubjects.Items.Count == 0)
+            {
+                MessageBox.Show("No courses available. Please add courses and schedules first.");
+                return;
+            }
+
+            // Button panel at bottom
+            Panel buttonPanel = new Panel();
+            buttonPanel.Dock = DockStyle.Bottom;
+            buttonPanel.Height = 60;
+            buttonPanel.BackColor = Color.White;
+
             Button btnAdd = new Button();
-            btnAdd.Text = "Add Subject";
-            btnAdd.Dock = DockStyle.Bottom;
-            btnAdd.Height = 40;
+            btnAdd.Text = "Add Selected Subject";
+            btnAdd.Size = new Size(200, 40);
+            btnAdd.Location = new Point(150, 10);
+            btnAdd.BackColor = Color.Maroon;
+            btnAdd.ForeColor = Color.White;
+            btnAdd.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            btnAdd.FlatStyle = FlatStyle.Flat;
+
+            Button btnCancel = new Button();
+            btnCancel.Text = "Cancel";
+            btnCancel.Size = new Size(100, 40);
+            btnCancel.Location = new Point(360, 10);
+            btnCancel.BackColor = Color.Gray;
+            btnCancel.ForeColor = Color.White;
+            btnCancel.Font = new Font("Segoe UI", 10);
+            btnCancel.FlatStyle = FlatStyle.Flat;
 
             btnAdd.Click += (s, ev) =>
             {
-                if (listSubjects.SelectedItem != null)
+                if (listSubjects.SelectedIndex >= 0)
                 {
-                    string selected = listSubjects.SelectedItem.ToString();
+                    int selectedIndex = listSubjects.SelectedIndex;
+                    int courseID = courseIds[selectedIndex];
+                    int scheduleID = scheduleIds[selectedIndex];
+                    string selectedSubject = listSubjects.SelectedItem.ToString();
 
-                    // Add selected subject
-                    switch (selected)
+                    // Check if already enrolled
+                    string checkQuery = @"
+                SELECT COUNT(*) 
+                FROM enrollment_details ed
+                JOIN schedule s ON ed.Schedule_ID = s.Schedule_ID
+                WHERE ed.Enrollment_ID = @enrollmentID AND s.Course_ID = @courseID";
+
+                    using (MySqlConnection conn = new MySqlConnection(connectionString))
                     {
-                        case "IT201 - Data Structures":
-                            dvgModifyEnrollment.Rows.Add(false, "IT201", "Data Structures", 3, "MWF • 8:00 AM - 9:00 AM");
-                            break;
+                        conn.Open();
+                        using (MySqlCommand cmd = new MySqlCommand(checkQuery, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@enrollmentID", currentEnrollmentID);
+                            cmd.Parameters.AddWithValue("@courseID", courseID);
+                            int exists = Convert.ToInt32(cmd.ExecuteScalar());
 
-                        case "CS202 - Algorithms":
-                            dvgModifyEnrollment.Rows.Add(false, "CS202", "Algorithms", 3, "TTH • 1:00 PM - 2:30 PM");
-                            break;
-
-                        case "WEB101 - Web Development":
-                            dvgModifyEnrollment.Rows.Add(false, "WEB101", "Web Development", 3, "MWF • 8:00 AM - 9:00 AM");
-                            break;
-
-                        case "DB101 - Database Management":
-                            dvgModifyEnrollment.Rows.Add(false, "DB101", "Database Management", 3, "TTH • 1:00 PM - 2:30 PM");
-                            break;
-
-                        case "NET101 - Networking":
-                            dvgModifyEnrollment.Rows.Add(false, "NET101", "Networking", 3, "MWF • 8:00 AM - 9:00 AM");
-                            break;
-
-                        case "OOP101 - Object-Oriented Programming":
-                            dvgModifyEnrollment.Rows.Add(false, "OOP101", "Object-Oriented Programming", 3, "TTH • 1:00 PM - 2:30 PM");
-                            break;
-
-                        case "MOB101 - Mobile Development":
-                            dvgModifyEnrollment.Rows.Add(false, "MOB101", "Mobile Development", 3, "MWF • 8:00 AM - 9:00 AM");
-                            break;
-
-                        case "AI101 - Introduction to AI":
-                            dvgModifyEnrollment.Rows.Add(false, "AI101", "Introduction to AI", 3, "TTH • 1:00 PM - 2:30 PM");
-                            break;
+                            if (exists > 0)
+                            {
+                                MessageBox.Show("This subject is already enrolled!", "Duplicate",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                return;
+                            }
+                        }
                     }
 
+                    // Add to enrollment_details
+                    string insertQuery = "INSERT INTO enrollment_details (Enrollment_ID, Schedule_ID) VALUES (@enrollmentID, @scheduleID)";
+                    using (MySqlConnection conn = new MySqlConnection(connectionString))
+                    {
+                        conn.Open();
+                        using (MySqlCommand cmd = new MySqlCommand(insertQuery, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@enrollmentID", currentEnrollmentID);
+                            cmd.Parameters.AddWithValue("@scheduleID", scheduleID);
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+
+                    // Refresh the grid
+                    LoadStudentEnrolledSubjects();
+
                     pickForm.Close();
+                    MessageBox.Show($"Added: {selectedSubject}", "Success",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
-                    MessageBox.Show("Please select a subject.");
+                    MessageBox.Show("Please select a subject to add.", "Warning",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             };
 
-            // Add controls
-            pickForm.Controls.Add(listSubjects);
-            pickForm.Controls.Add(btnAdd);
+            btnCancel.Click += (s, ev) => { pickForm.Close(); };
 
-            // Show form
+            buttonPanel.Controls.Add(btnAdd);
+            buttonPanel.Controls.Add(btnCancel);
+
+            pickForm.Controls.Add(listSubjects);
+            pickForm.Controls.Add(buttonPanel);
             pickForm.ShowDialog();
+        }
+
+        private void btnDropSubjects_Click(object sender, EventArgs e)
+        {
+            List<int> detailIDsToDelete = new List<int>();
+
+            for (int i = dvgModifyEnrollment.Rows.Count - 1; i >= 0; i--)
+            {
+                DataGridViewRow row = dvgModifyEnrollment.Rows[i];
+                if (row.Cells[0].Value != null && (bool)row.Cells[0].Value == true)
+                {
+                    int detailID = Convert.ToInt32(row.Cells[2].Value);
+                    detailIDsToDelete.Add(detailID);
+                }
+            }
+
+            if (detailIDsToDelete.Count == 0)
+            {
+                MessageBox.Show("Please check the subjects you want to drop.");
+                return;
+            }
+
+            if (MessageBox.Show($"Drop {detailIDsToDelete.Count} subject(s)?", "Confirm",
+                MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                using (MySqlConnection conn = new MySqlConnection(connectionString))
+                {
+                    conn.Open();
+                    foreach (int detailID in detailIDsToDelete)
+                    {
+                        string query = "DELETE FROM enrollment_details WHERE Enrollment_Detail_ID = @detailID";
+                        using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@detailID", detailID);
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                }
+
+                LoadStudentEnrolledSubjects();
+                MessageBox.Show("Subject(s) dropped successfully!");
+            }
         }
 
         private void btnSaveChanges_Click(object sender, EventArgs e)
         {
-            int selectedSubjects = 0;
             int totalUnits = 0;
-            int maxUnits = 23;
-
-            // COUNT CHECKED SUBJECTS
-            // ======================================
             foreach (DataGridViewRow row in dvgModifyEnrollment.Rows)
             {
-                bool isChecked = false;
-
-                if (row.Cells[0].Value != null)
+                if (row.Cells[5].Value != null)
                 {
-                    isChecked = (bool)row.Cells[0].Value;
-                }
-
-                if (isChecked)
-                {
-                    selectedSubjects++;
-
-                    totalUnits += Convert.ToInt32(row.Cells[3].Value);
+                    totalUnits += Convert.ToInt32(row.Cells[5].Value);
                 }
             }
-            DialogResult result = MessageBox.Show(
-                     "Selected Subjects: " + selectedSubjects +
-                     "\nTotal Units: " + totalUnits +
-                     "\n\nAre you sure you want to save the changes?",
-                     "Confirm Changes",
-                     MessageBoxButtons.YesNo,
-                     MessageBoxIcon.Question
-                 );
 
-            // If NO, stop the method
-            if (result == DialogResult.No)
-            {
-                return;
-            }
-
-
-
-            
-
-            // ======================================
-            // CHECK MAX UNITS
-            // ======================================
-            if (totalUnits > maxUnits)
-            {
-                MessageBox.Show(
-                    "Total units exceeded!\n\n" +
-                    "Maximum Units Allowed: " + maxUnits +
-                    "\nYour Total Units: " + totalUnits,
-
-                    "Unit Limit Reached",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning
-                );
-
-                return;
-            }
-
-            // ======================================
-            // SAVE SUCCESS
-            // ======================================
-            MessageBox.Show(
-                "Changes saved successfully!\n\n" +
-                "Selected Subjects: " + selectedSubjects +
-                "\nTotal Units: " + totalUnits,
-
-                "Saved",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-            );
-           
+            MessageBox.Show($"Enrollment saved!\nTotal Units: {totalUnits}", "Success",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void UpdateEnrollmentSummary() //Update the summary labels based on the current subjects in the DataGridView
+        // When user clicks into the textbox
+        private void TextBox_Enter(object sender, EventArgs e)
         {
-            int totalUnits = 0;
-
-            foreach (DataGridViewRow row in dvgModifyEnrollment.Rows)
+            if (txtStudentID.Text == "Student ID")
             {
-                if (row.Cells[4].Value != null)
-                {
-                    int units;
-                    if (int.TryParse(row.Cells[4].Value.ToString(), out units))
-                    {
-                        totalUnits += units;
-                    }
-                }
+                txtStudentID.Text = "";
+                txtStudentID.StateCommon.Content.Color1 = Color.Black;
+            }
+        }
+
+        // When user leaves the textbox
+        private void TextBox_Leave(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtStudentID.Text))
+            {
+                txtStudentID.Text = "Student ID";
+                txtStudentID.StateCommon.Content.Color1 = Color.DarkGray;
+            }
+        }
+
+        private void btnClear_Click(object sender, EventArgs e)
+        {
+            ClearAll();
+        }
+
+        private void ClearAll()
+        {
+            dvgModifyEnrollment?.Rows.Clear();
+
+            if (lblName != null) lblName.Visible = false;
+            if (lblProgram != null) lblProgram.Visible = false;
+            if (lblStudentID != null) lblStudentID.Visible = false;
+
+            if (lblStatus != null) lblStatus.Text = "--";
+            if (lblUnitsOverload != null) lblUnitsOverload.Text = "--";
+            if (lblUnitsEnrolled != null) lblUnitsEnrolled.Text = "--";
+            if (lblUnitsAllowed != null) lblUnitsAllowed.Text = "--";
+
+            if (txtStudentID != null)
+            {
+                txtStudentID.Text = "Student ID";
             }
 
-            lblUnitsEnrolled.Text = "Units Enrolled: " + totalUnits;
-
+            EnableButtons(false);
+            currentStudentID = "";
+            currentEnrollmentID = 0;
         }
+
+        private void EnableButtons(bool enabled)
+        {
+            if (btnClear != null) btnClear.Enabled = enabled;
+            if (btnAddSubjects != null) btnAddSubjects.Enabled = enabled;
+            if (btnDropSubjects != null) btnDropSubjects.Enabled = enabled;
+            if (btnSaveChanges != null) btnSaveChanges.Enabled = enabled;
+        }
+
+        private void UpdateSummaryLabels(int totalUnits)
+        {
+            int maxUnits = 23;
+            int overload = totalUnits > maxUnits ? totalUnits - maxUnits : 0;
+
+            if (lblUnitsEnrolled != null) lblUnitsEnrolled.Text = totalUnits.ToString();
+            if (lblUnitsAllowed != null) lblUnitsAllowed.Text = maxUnits.ToString();
+            if (lblUnitsOverload != null) lblUnitsOverload.Text = overload.ToString();
+            if (lblStatus != null) lblStatus.Text = overload > 0 ? "Overload" : "Regular";
+        }
+
+        // Helper class for course items
+        private class CourseItem
+        {
+            public int ID { get; set; }
+            public string Display { get; set; }
+
+            public override string ToString()
+            {
+                return Display;
+            }
+        }
+
+       
+        private void kryptonDataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
     }
+       
+
 }
-
-
