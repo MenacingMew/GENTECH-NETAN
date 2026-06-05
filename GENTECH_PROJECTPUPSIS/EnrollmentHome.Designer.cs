@@ -52,11 +52,11 @@
             this.kryptonBorderEdge19 = new ComponentFactory.Krypton.Toolkit.KryptonBorderEdge();
             this.panel5 = new System.Windows.Forms.Panel();
             this.lblDownload = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
+            this.lblSemester = new System.Windows.Forms.Label();
             this.lblEnrollmentName = new System.Windows.Forms.Label();
             this.kryptonPanel3 = new ComponentFactory.Krypton.Toolkit.KryptonPanel();
             this.label5 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
+            this.lblGWA = new System.Windows.Forms.Label();
             this.panel3 = new System.Windows.Forms.Panel();
             this.kryptonBorderEdge3 = new ComponentFactory.Krypton.Toolkit.KryptonBorderEdge();
             this.kryptonPanel2 = new ComponentFactory.Krypton.Toolkit.KryptonPanel();
@@ -66,7 +66,7 @@
             this.kryptonBorderEdge2 = new ComponentFactory.Krypton.Toolkit.KryptonBorderEdge();
             this.kryptonPanel1 = new ComponentFactory.Krypton.Toolkit.KryptonPanel();
             this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
+            this.lblTotalAmount = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
             this.kryptonBorderEdge1 = new ComponentFactory.Krypton.Toolkit.KryptonBorderEdge();
             this.panel4.SuspendLayout();
@@ -378,7 +378,7 @@
             // 
             this.panel5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.panel5.Controls.Add(this.lblDownload);
-            this.panel5.Controls.Add(this.label10);
+            this.panel5.Controls.Add(this.lblSemester);
             this.panel5.Controls.Add(this.lblEnrollmentName);
             this.panel5.Location = new System.Drawing.Point(12, 15);
             this.panel5.Margin = new System.Windows.Forms.Padding(2);
@@ -400,18 +400,18 @@
             this.lblDownload.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.lblDownload.Click += new System.EventHandler(this.lblDownload_Click);
             // 
-            // label10
+            // lblSemester
             // 
-            this.label10.AutoSize = true;
-            this.label10.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
-            this.label10.ForeColor = System.Drawing.Color.White;
-            this.label10.Location = new System.Drawing.Point(744, 7);
-            this.label10.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(224, 21);
-            this.label10.TabIndex = 69;
-            this.label10.Text = "A.Y 25-26 | Second Semester";
-            this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblSemester.AutoSize = true;
+            this.lblSemester.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
+            this.lblSemester.ForeColor = System.Drawing.Color.White;
+            this.lblSemester.Location = new System.Drawing.Point(744, 7);
+            this.lblSemester.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblSemester.Name = "lblSemester";
+            this.lblSemester.Size = new System.Drawing.Size(224, 21);
+            this.lblSemester.TabIndex = 69;
+            this.lblSemester.Text = "A.Y 25-26 | Second Semester";
+            this.lblSemester.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // lblEnrollmentName
             // 
@@ -429,7 +429,7 @@
             // kryptonPanel3
             // 
             this.kryptonPanel3.Controls.Add(this.label5);
-            this.kryptonPanel3.Controls.Add(this.label6);
+            this.kryptonPanel3.Controls.Add(this.lblGWA);
             this.kryptonPanel3.Controls.Add(this.panel3);
             this.kryptonPanel3.Location = new System.Drawing.Point(384, 80);
             this.kryptonPanel3.Name = "kryptonPanel3";
@@ -453,19 +453,19 @@
             this.label5.Text = "GWA";
             this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // label6
+            // lblGWA
             // 
-            this.label6.AutoSize = true;
-            this.label6.BackColor = System.Drawing.Color.Transparent;
-            this.label6.Font = new System.Drawing.Font("Segoe UI", 25F, System.Drawing.FontStyle.Bold);
-            this.label6.ForeColor = System.Drawing.Color.White;
-            this.label6.Location = new System.Drawing.Point(61, 90);
-            this.label6.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(89, 46);
-            this.label6.TabIndex = 59;
-            this.label6.Text = "1.00";
-            this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblGWA.AutoSize = true;
+            this.lblGWA.BackColor = System.Drawing.Color.Transparent;
+            this.lblGWA.Font = new System.Drawing.Font("Segoe UI", 25F, System.Drawing.FontStyle.Bold);
+            this.lblGWA.ForeColor = System.Drawing.Color.White;
+            this.lblGWA.Location = new System.Drawing.Point(61, 90);
+            this.lblGWA.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblGWA.Name = "lblGWA";
+            this.lblGWA.Size = new System.Drawing.Size(89, 46);
+            this.lblGWA.TabIndex = 59;
+            this.lblGWA.Text = "1.00";
+            this.lblGWA.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // panel3
             // 
@@ -551,7 +551,7 @@
             // kryptonPanel1
             // 
             this.kryptonPanel1.Controls.Add(this.label2);
-            this.kryptonPanel1.Controls.Add(this.label3);
+            this.kryptonPanel1.Controls.Add(this.lblTotalAmount);
             this.kryptonPanel1.Controls.Add(this.panel2);
             this.kryptonPanel1.Location = new System.Drawing.Point(664, 80);
             this.kryptonPanel1.Name = "kryptonPanel1";
@@ -575,19 +575,19 @@
             this.label2.Text = "Balance Due";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // label3
+            // lblTotalAmount
             // 
-            this.label3.AutoSize = true;
-            this.label3.BackColor = System.Drawing.Color.Transparent;
-            this.label3.Font = new System.Drawing.Font("Segoe UI", 25F, System.Drawing.FontStyle.Bold);
-            this.label3.ForeColor = System.Drawing.Color.White;
-            this.label3.Location = new System.Drawing.Point(7, 86);
-            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(200, 46);
-            this.label3.TabIndex = 59;
-            this.label3.Text = "₱00,000.00";
-            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblTotalAmount.AutoSize = true;
+            this.lblTotalAmount.BackColor = System.Drawing.Color.Transparent;
+            this.lblTotalAmount.Font = new System.Drawing.Font("Segoe UI", 25F, System.Drawing.FontStyle.Bold);
+            this.lblTotalAmount.ForeColor = System.Drawing.Color.White;
+            this.lblTotalAmount.Location = new System.Drawing.Point(7, 86);
+            this.lblTotalAmount.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblTotalAmount.Name = "lblTotalAmount";
+            this.lblTotalAmount.Size = new System.Drawing.Size(200, 46);
+            this.lblTotalAmount.TabIndex = 59;
+            this.lblTotalAmount.Text = "₱00,000.00";
+            this.lblTotalAmount.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // panel2
             // 
@@ -675,11 +675,11 @@
         private ComponentFactory.Krypton.Toolkit.KryptonBorderEdge kryptonBorderEdge18;
         private ComponentFactory.Krypton.Toolkit.KryptonBorderEdge kryptonBorderEdge19;
         private System.Windows.Forms.Panel panel5;
-        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label lblSemester;
         private System.Windows.Forms.Label lblEnrollmentName;
         private ComponentFactory.Krypton.Toolkit.KryptonPanel kryptonPanel3;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label lblGWA;
         private System.Windows.Forms.Panel panel3;
         private ComponentFactory.Krypton.Toolkit.KryptonBorderEdge kryptonBorderEdge3;
         private ComponentFactory.Krypton.Toolkit.KryptonPanel kryptonPanel2;
@@ -689,7 +689,7 @@
         private ComponentFactory.Krypton.Toolkit.KryptonBorderEdge kryptonBorderEdge2;
         private ComponentFactory.Krypton.Toolkit.KryptonPanel kryptonPanel1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label lblTotalAmount;
         private System.Windows.Forms.Panel panel2;
         private ComponentFactory.Krypton.Toolkit.KryptonBorderEdge kryptonBorderEdge1;
         private System.Windows.Forms.Label lblDownload;

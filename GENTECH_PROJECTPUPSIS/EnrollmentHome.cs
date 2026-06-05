@@ -8,11 +8,17 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MySql.Data.MySqlClient;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+using System.IO;
+
 
 namespace GENTECH_PROJECTPUPSIS
 {
     public partial class EnrollmentHome : UserControl
     {
+        private string connectionString = "server=localhost;port=3306;database=gentechdb_admin;uid=root;pwd=1234;";
+
         public EnrollmentHome()
         {
             InitializeComponent();
@@ -20,22 +26,15 @@ namespace GENTECH_PROJECTPUPSIS
 
         private void EnrollmentHome_Load(object sender, EventArgs e)
         {
-            // Display enrollment staff information
             DisplayStaffInfo();
-
-            // Display current date
             DisplayCurrentDate();
-
-            // Load enrolled subjects
             LoadEnrolledSubjects();
-
-            // Load student statistics or counts
             LoadEnrollmentStats();
+            LoadStudentGWA();
         }
 
         private void DisplayStaffInfo()
         {
-            // Check if user is logged in
             if (!UserSession.IsLoggedIn || !UserSession.IsEnrollmentStaff())
             {
                 MessageBox.Show("Session expired. Please login again.",
@@ -43,83 +42,57 @@ namespace GENTECH_PROJECTPUPSIS
                 return;
             }
 
-            // Display staff welcome message
             lblEnrollmentName.Text = $"Welcome, {UserSession.GetFullName()}!";
             lblCourseSection.Text = $"{UserSession.ProgramCode} {UserSession.YearLevel}-{UserSession.Section}";
-
-
-            // Since enrollment staff are also students, show their student info
-
-            // Display in a formatted label if you have one
-
         }
 
         private void DisplayCurrentDate()
         {
-        
+            // Add date display if needed
         }
 
-
-           
         private void LoadEnrolledSubjects()
         {
-            // You can load subjects from database based on the enrollment staff's student ID
             if (!UserSession.IsEnrollmentStaff()) return;
-
-            // Option 1: Load dummy data (your current implementation)
-            LoadDummySubjects();
-
-            // Option 2: Load from database (uncomment and use this instead)
-            // LoadSubjectsFromDatabase(UserSession.EnrollmentStudentID ?? 0);
-        }
-
-        private void LoadDummySubjects()
-        {
-            dvgEnrolled.Rows.Clear();
-
-            DummiesBasicToKungfu("Comp 001", "Object-Oriented Programming", 3);
-            DummiesBasicToKungfu("Comp 002", "Data Structures and Algorithms", 3);
-            DummiesBasicToKungfu("Comp 003", "Database Management Systems", 3);
-            DummiesBasicToKungfu("Comp 004", "Web Development", 3);
-            DummiesBasicToKungfu("Comp 005", "Computer Networks", 3);
-            DummiesBasicToKungfu("Comp 006", "Software Engineering", 3);
-            DummiesBasicToKungfu("Comp 007", "Operating Systems", 3);
-            DummiesBasicToKungfu("Comp 008", "Human-Computer Interaction", 2);
+            LoadSubjectsFromDatabase(UserSession.EnrollmentStudentID ?? 0);
         }
 
         private void LoadSubjectsFromDatabase(int studentId)
         {
             try
             {
-                string connectionString = "server=localhost;port=3306;database=gentechdb_admin;uid=root;pwd=1234;";
-
-                string query = @"SELECT s.Subject_Code, s.Subject_Description, s.Units 
-                                FROM enrolled_subjects es
-                                INNER JOIN subjects s ON es.Subject_ID = s.Subject_ID
-                                WHERE es.Student_ID = @studentId
-                                AND es.Semester = @semester
-                                AND es.Academic_Year = @academicYear";
-
                 using (MySqlConnection conn = new MySqlConnection(connectionString))
                 {
                     conn.Open();
+
+                    string query = @"SELECT 
+                                        c.Course_Code,
+                                        c.Course_Name,
+                                        c.Units
+                                    FROM enrolled_subjects es
+                                    JOIN enrollment e ON es.Enrollment_ID = e.Enrollment_ID
+                                    JOIN course c ON es.Course_ID = c.Course_ID
+                                    WHERE e.Student_ID = @studentId
+                                    ORDER BY c.Course_Code";
+
                     using (MySqlCommand cmd = new MySqlCommand(query, conn))
                     {
                         cmd.Parameters.AddWithValue("@studentId", studentId);
-                        cmd.Parameters.AddWithValue("@semester", "1st"); // or get from session
-                        cmd.Parameters.AddWithValue("@academicYear", "2024-2025"); // or calculate dynamically
 
                         using (MySqlDataReader reader = cmd.ExecuteReader())
                         {
                             dvgEnrolled.Rows.Clear();
 
-                            while (reader.Read())
+                            if (reader.HasRows)
                             {
-                                string code = reader["Subject_Code"].ToString();
-                                string description = reader["Subject_Description"].ToString();
-                                int units = Convert.ToInt32(reader["Units"]);
+                                while (reader.Read())
+                                {
+                                    string code = reader["Course_Code"].ToString();
+                                    string name = reader["Course_Name"].ToString();
+                                    int units = Convert.ToInt32(reader["Units"]);
 
-                                DummiesBasicToKungfu(code, description, units);
+                                    DummiesBasicToKungfu(code, name, units);
+                                }
                             }
                         }
                     }
@@ -132,27 +105,91 @@ namespace GENTECH_PROJECTPUPSIS
             }
         }
 
-        private void LoadEnrollmentStats()
+        private void LoadStudentGWA()
         {
-            // Display enrollment statistics if you have labels for them
             try
             {
-                string connectionString = "server=localhost;port=3306;database=gentechdb_admin;uid=root;pwd=1234;";
-
                 using (MySqlConnection conn = new MySqlConnection(connectionString))
                 {
                     conn.Open();
 
-                    // Get total enrolled students
-                   
+                    int studentId = UserSession.EnrollmentStudentID ?? 0;
 
-                    // Get total subjects
-                   
+                    string query = @"SELECT GWA, Remarks
+                            FROM grade_overview
+                            WHERE Student_ID = @studentId
+                            ORDER BY Grade_Overview_ID DESC
+                            LIMIT 1";
 
-                    // Get total units
-                    
-                    
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@studentId", studentId);
+
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read() && reader["GWA"] != DBNull.Value)
+                            {
+                                decimal gwa = Convert.ToDecimal(reader["GWA"]);
+                                string remarks = reader["Remarks"]?.ToString() ?? "";
+
+                                lblGWA.Text = $"{gwa:N2}";
+                            }
+                            else
+                            {
+                                lblGWA.Text = "N/A";
+                            }
+                        }
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading GWA: {ex.Message}");
+                lblGWA.Text = "Error";
+            }
+        }
+
+        private void LoadEnrollmentStats()
+        {
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    int studentId = UserSession.EnrollmentStudentID ?? 0;
+
+                    string query = @"SELECT soa.Total_Amount_Due, sem.Semester_Name, sem.Academic_Year
+                                    FROM statement_of_account soa
+                                    JOIN semester sem ON soa.Semester_ID = sem.Semester_ID
+                                    WHERE soa.Student_ID = @studentId
+                                    ORDER BY soa.Statement_Of_Account_ID DESC
+                                    LIMIT 1";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@studentId", studentId);
+
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                decimal totalDue = Convert.ToDecimal(reader["Total_Amount_Due"]);
+                                string semester = reader["Semester_Name"].ToString();
+                                string academicYear = reader["Academic_Year"].ToString();
+
+                                lblTotalAmount.Text = $"₱{totalDue:N2}";
+                                lblSemester.Text = $"A.Y {academicYear} | {semester}";
+                            }
+                            else
+                            {
+                                lblTotalAmount.Text = "No SOA";
+                            }
+                        }
+                    }
+                }
+
+              
             }
             catch (Exception ex)
             {
@@ -170,9 +207,151 @@ namespace GENTECH_PROJECTPUPSIS
             row.Cells[2].Value = unit;
         }
 
+ 
+        private void lblDownload_Click(object sender, EventArgs e)
+        {
+
+            if (dvgEnrolled.Rows.Count == 0)
+            {
+                MessageBox.Show("You have no enrolled subjects. Cannot download COR.",
+                    "No Enrolled Subjects", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Ask where to save
+            SaveFileDialog save = new SaveFileDialog();
+            save.Filter = "PDF File|*.pdf";
+            save.Title = "Save Certificate of Registration";
+            save.FileName = $"COR_{UserSession.EnrollmentStudentID}_{DateTime.Now:yyyyMMdd}.pdf";
+
+            if (save.ShowDialog() == DialogResult.OK)
+            {
+                GenerateCORPDF(save.FileName);
+            }
+        }
+
+        private void GenerateCORPDF(string filePath)
+        {
+            try
+            {
+                Document doc = new Document(PageSize.LETTER, 40, 40, 40, 40);
+                PdfWriter.GetInstance(doc, new FileStream(filePath, FileMode.Create));
+                doc.Open();
+
+                // Fonts
+                BaseFont arial = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+                iTextSharp.text.Font titleFont = new iTextSharp.text.Font(arial, 14, iTextSharp.text.Font.BOLD);
+                iTextSharp.text.Font headerFont = new iTextSharp.text.Font(arial, 11, iTextSharp.text.Font.BOLD);
+                iTextSharp.text.Font normalFont = new iTextSharp.text.Font(arial, 9, iTextSharp.text.Font.NORMAL);
+                iTextSharp.text.Font smallFont = new iTextSharp.text.Font(arial, 8, iTextSharp.text.Font.NORMAL);
+                iTextSharp.text.Font boldFont = new iTextSharp.text.Font(arial, 9, iTextSharp.text.Font.BOLD);
+
+                // Header
+                Paragraph republic = new Paragraph("Republic of the Philippines", titleFont);
+                republic.Alignment = Element.ALIGN_CENTER;
+                doc.Add(republic);
+
+                Paragraph pup = new Paragraph("POLYTECHNIC UNIVERSITY OF THE PHILIPPINES", headerFont);
+                pup.Alignment = Element.ALIGN_CENTER;
+                doc.Add(pup);
+
+                Paragraph cor = new Paragraph("CERTIFICATE OF REGISTRATION", titleFont);
+                cor.Alignment = Element.ALIGN_CENTER;
+                doc.Add(cor);
+
+                doc.Add(new Paragraph(" ")); // Spacer
+
+                // Student Info
+                string studentName = UserSession.GetFullName().ToUpper();
+                string studentId = UserSession.EnrollmentStudentID?.ToString() ?? "";
+                string programDesc = $"{UserSession.ProgramName}";
+                string programCode = UserSession.ProgramCode ?? "";
+                string yearLevel = UserSession.YearLevel?.ToString() ?? "";
+                string section = UserSession.Section?.ToString() ?? "";
+                string address = "Address Here"; // Add from database if available
+                string contactNo = UserSession.ContactNumber ?? "";
+
+                Paragraph studentInfo = new Paragraph();
+                studentInfo.Add(new Chunk($"{studentName}\n", boldFont));
+                studentInfo.Add(new Chunk($"{studentId}  A.Y.: 2024-2025  TERM: 1st Semester\n", normalFont));
+                studentInfo.Add(new Chunk($"PROGRAM DESCRIPTION: {programDesc}  PROGRAM CODE: {programCode}\n", normalFont));
+                studentInfo.Add(new Chunk($"YEAR LEVEL: {yearLevel}  SECTION: {section}\n", normalFont));
+                studentInfo.Add(new Chunk($"CONTACT NO: {contactNo}\n", normalFont));
+                doc.Add(studentInfo);
+
+                doc.Add(new Paragraph(" ")); // Spacer
+
+                // Table for Subjects
+                PdfPTable table = new PdfPTable(4);
+                table.WidthPercentage = 100;
+                table.SetWidths(new float[] { 2f, 5f, 2f, 2f });
+
+                // Table Headers
+                table.AddCell(new PdfPCell(new Phrase("CODE", boldFont)) { HorizontalAlignment = Element.ALIGN_CENTER });
+                table.AddCell(new PdfPCell(new Phrase("SUBJECT TITLE", boldFont)) { HorizontalAlignment = Element.ALIGN_CENTER });
+                table.AddCell(new PdfPCell(new Phrase("SECTION", boldFont)) { HorizontalAlignment = Element.ALIGN_CENTER });
+                table.AddCell(new PdfPCell(new Phrase("UNITS", boldFont)) { HorizontalAlignment = Element.ALIGN_CENTER });
+
+                // Add subjects from DataGridView
+                foreach (DataGridViewRow row in dvgEnrolled.Rows)
+                {
+                    if (row.Cells[0].Value != null)
+                    {
+                        string code = row.Cells[0].Value.ToString();
+                        string title = row.Cells[1].Value?.ToString() ?? "";
+                        string sec = section;
+                        string units = row.Cells[2].Value?.ToString() ?? "";
+
+                        table.AddCell(new PdfPCell(new Phrase(code, normalFont)));
+                        table.AddCell(new PdfPCell(new Phrase(title, normalFont)));
+                        table.AddCell(new PdfPCell(new Phrase(sec, normalFont)) { HorizontalAlignment = Element.ALIGN_CENTER });
+                        table.AddCell(new PdfPCell(new Phrase(units, normalFont)) { HorizontalAlignment = Element.ALIGN_CENTER });
+                    }
+                }
+
+                doc.Add(table);
+
+                doc.Add(new Paragraph(" ")); // Spacer
+
+                // Separator
+                Paragraph separator = new Paragraph("x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x Nothing Follows x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x", smallFont);
+                separator.Alignment = Element.ALIGN_CENTER;
+                doc.Add(separator);
+
+                // Total Units and Assessment
+                int totalUnits = 0;
+                foreach (DataGridViewRow row in dvgEnrolled.Rows)
+                {
+                    if (row.Cells[2].Value != null)
+                    {
+                        totalUnits += Convert.ToInt32(row.Cells[2].Value);
+                    }
+                }
+
+                Paragraph totals = new Paragraph();
+                totals.Add(new Chunk($"TOTAL UNITS ENROLLED: {totalUnits}\n", boldFont));
+                totals.Add(new Chunk($"TOTAL ASSESSMENT: {lblTotalAmount.Text}\n", boldFont));
+                doc.Add(totals);
+
+                doc.Add(new Paragraph(" "));
+                Paragraph registrar = new Paragraph("REGISTRAR: This is system-generated, signature is not required", smallFont);
+                registrar.Alignment = Element.ALIGN_CENTER;
+                doc.Add(registrar);
+
+                doc.Close();
+
+                MessageBox.Show("COR PDF saved successfully!",
+                    "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error generating PDF: {ex.Message}",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void btnEnrollNow_Click(object sender, EventArgs e)
         {
-            // Check if user has permission to enroll
             if (!UserSession.IsEnrollmentStaff())
             {
                 MessageBox.Show("You don't have permission to access enrollment.",
@@ -180,10 +359,6 @@ namespace GENTECH_PROJECTPUPSIS
                 return;
             }
 
-            // Log the action
-            LogAction("Clicked Enroll Now button");
-
-            // Navigate to enrollment confirmation
             EnrollmentMainForm main = (EnrollmentMainForm)this.FindForm();
             if (main != null)
             {
@@ -191,46 +366,28 @@ namespace GENTECH_PROJECTPUPSIS
             }
         }
 
-        private void lblDownload_Click(object sender, EventArgs e)
+        private string GetCurrentSemester()
         {
-            SaveFileDialog save = new SaveFileDialog();
-
-            save.Filter = "PNG Image|*.png";
-            save.Title = "Save Image";
-            save.FileName = $"COR_{UserSession.EnrollmentStudentID}_{DateTime.Now:yyyyMMdd}.png";
-
-            if (save.ShowDialog() == DialogResult.OK)
-            {
-                pictureBox1.Image.Save(save.FileName,
-                System.Drawing.Imaging.ImageFormat.Png);
-
-                LogAction($"Downloaded COR to {save.FileName}");
-
-                MessageBox.Show(
-                 "Image saved successfully!",
-                 "Success",
-                 MessageBoxButtons.OK,
-                 MessageBoxIcon.Information
-             );
-            }
+            int month = DateTime.Now.Month;
+            if (month >= 8 && month <= 12) return "1st Semester";
+            else if (month >= 1 && month <= 5) return "2nd Semester";
+            else return "Summer";
         }
 
-        private void LogAction(string action)
+        private string GetCurrentAcademicYear()
         {
-            // Optional: Log user actions
-            if (UserSession.IsLoggedIn)
-            {
-                Console.WriteLine($"[{DateTime.Now}] {UserSession.GetFullName()} " +
-                                $"(Staff ID: {UserSession.CredentialID}): {action}");
-
-                // You can also log to database here
-            }
+            int year = DateTime.Now.Year;
+            int month = DateTime.Now.Month;
+            if (month >= 6) return $"{year}-{year + 1}";
+            else return $"{year - 1}-{year}";
         }
 
-        // Optional: Add a refresh button
         private void btnRefresh_Click(object sender, EventArgs e)
         {
             EnrollmentHome_Load(sender, e);
         }
+
+
+
     }
 }
