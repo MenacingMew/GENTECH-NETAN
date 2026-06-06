@@ -24,6 +24,8 @@ namespace WindowsFormsApp1
         {
             InitializeComponent();
             LoadFacultyGridView();
+            this.txtAdminSearchModify.Enter += new System.EventHandler(this.txtAdminSearchModify_Enter);
+            this.txtAdminSearchModify.Leave += new System.EventHandler(this.txtAdminSearchModify_Leave);
         }
 
         // =========================================
@@ -281,42 +283,77 @@ namespace WindowsFormsApp1
 
             DateTime birthDate = dtpBirthday.Value;
 
-            // VALIDATION - Check required fields
+            // ========== VALIDATION ==========
+
+            // First Name validation
             if (firstName == "First Name" || string.IsNullOrWhiteSpace(firstName))
             {
-                MessageBox.Show("Please enter a valid First Name.", "Missing Field",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please enter a valid First Name.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (!IsValidName(firstName))
+            {
+                MessageBox.Show("First Name can only contain letters, spaces, and hyphens.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
+            // Last Name validation
             if (lastName == "Last Name" || string.IsNullOrWhiteSpace(lastName))
             {
-                MessageBox.Show("Please enter a valid Last Name.", "Missing Field",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please enter a valid Last Name.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (!IsValidName(lastName))
+            {
+                MessageBox.Show("Last Name can only contain letters, spaces, and hyphens.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
+            // Email validation
             if (email == "Email" || string.IsNullOrWhiteSpace(email))
             {
-                MessageBox.Show("Please enter a valid Email address.", "Missing Field",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please enter a valid Email address.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (!IsValidEmail(email))
+            {
+                MessageBox.Show("Please enter a valid email address (e.g., name@domain.com).", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
+            // Faculty ID validation
             if (facultyID == "Faculty ID" || string.IsNullOrWhiteSpace(facultyID))
             {
-                MessageBox.Show("Please enter a Faculty ID (must be a number).", "Missing Field",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please enter a Faculty ID (must be a number).", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (!IsValidNumber(facultyID))
+            {
+                MessageBox.Show("Faculty ID must be a number (e.g., 18, 19, 20).", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // Validate Faculty ID is a number
-            if (!int.TryParse(facultyID, out int facultyIdNumber))
+            // Middle Name validation (optional)
+            if (!string.IsNullOrEmpty(middleName) && middleName != "Middle Name")
             {
-                MessageBox.Show("Faculty ID must be a number (e.g., 18, 19, 20).", "Invalid ID",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                if (!IsValidName(middleName))
+                {
+                    MessageBox.Show("Middle Name can only contain letters, spaces, and hyphens.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
             }
+
+            // Contact Number validation (optional)
+            if (!string.IsNullOrEmpty(contactNo) && contactNo != "Contact No.")
+            {
+                if (!IsValidPhoneNumber(contactNo))
+                {
+                    MessageBox.Show("Contact Number must contain 10-15 digits only.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+            }
+
+            int facultyIdNumber = int.Parse(facultyID);
 
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
@@ -329,16 +366,15 @@ namespace WindowsFormsApp1
                     int exists = Convert.ToInt32(cmd.ExecuteScalar());
                     if (exists > 0)
                     {
-                        MessageBox.Show($"Faculty ID {facultyIdNumber} already exists!", "Duplicate",
-                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show($"Faculty ID {facultyIdNumber} already exists!", "Duplicate", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return;
                     }
                 }
 
                 // Insert into faculty table
                 string insertQuery = @"
-                    INSERT INTO faculty (Faculty_ID, Department_ID, First_Name, Last_Name, Middle_Name, Suffix, Email, Contact_Number, Address, Sex, Birth_Date, Password, IsArchived) 
-                    VALUES (@id, @deptID, @first, @last, @middle, @suffix, @email, @contact, @address, @sex, @birthdate, @password, 0)";
+            INSERT INTO faculty (Faculty_ID, Department_ID, First_Name, Last_Name, Middle_Name, Suffix, Email, Contact_Number, Address, Sex, Birth_Date, Password, IsArchived) 
+            VALUES (@id, @deptID, @first, @last, @middle, @suffix, @email, @contact, @address, @sex, @birthdate, @password, 0)";
 
                 using (MySqlCommand cmd = new MySqlCommand(insertQuery, conn))
                 {
@@ -411,42 +447,71 @@ namespace WindowsFormsApp1
 
             DateTime birthDate = dtpBirthdayAdminCreate.Value;
 
+            // ========== VALIDATION ==========
+
             if (firstName == "First Name" || string.IsNullOrWhiteSpace(firstName))
             {
-                MessageBox.Show("Please enter a valid First Name.", "Missing Field", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please enter a valid First Name.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (!IsValidName(firstName))
+            {
+                MessageBox.Show("First Name can only contain letters, spaces, and hyphens.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             if (lastName == "Last Name" || string.IsNullOrWhiteSpace(lastName))
             {
-                MessageBox.Show("Please enter a valid Last Name.", "Missing Field", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please enter a valid Last Name.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (!IsValidName(lastName))
+            {
+                MessageBox.Show("Last Name can only contain letters, spaces, and hyphens.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             if (email == "Email" || string.IsNullOrWhiteSpace(email))
             {
-                MessageBox.Show("Please enter a valid Email address.", "Missing Field", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please enter a valid Email address.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (!IsValidEmail(email))
+            {
+                MessageBox.Show("Please enter a valid email address (e.g., name@domain.com).", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             if (adminID == "Admin ID" || string.IsNullOrWhiteSpace(adminID))
             {
-                MessageBox.Show("Please enter an Admin ID (must be a number).", "Missing Field", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please enter an Admin ID (must be a number).", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
-            if (!int.TryParse(adminID, out int adminIdNumber))
+            if (!IsValidNumber(adminID))
             {
-                MessageBox.Show("Admin ID must be a number.", "Invalid ID", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Admin ID must be a number.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            if (!email.Contains("@") || !email.Contains("."))
+            if (!string.IsNullOrEmpty(contactNo) && contactNo != "Contact No.")
             {
-                MessageBox.Show("Please enter a valid email address.", "Invalid Email", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                if (!IsValidPhoneNumber(contactNo))
+                {
+                    MessageBox.Show("Contact Number must contain 10-15 digits only.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
             }
 
+            if (!string.IsNullOrEmpty(middleName) && middleName != "Middle Name")
+            {
+                if (!IsValidName(middleName))
+                {
+                    MessageBox.Show("Middle Name can only contain letters, spaces, and hyphens.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+            }
+
+            int adminIdNumber = int.Parse(adminID);
             string generatedPassword = GenerateRandomPassword(10);
 
             using (MySqlConnection conn = new MySqlConnection(connectionString))
@@ -474,8 +539,8 @@ namespace WindowsFormsApp1
                 }
 
                 string insertQuery = @"
-                    INSERT INTO admin (Admin_ID, First_Name, Last_Name, Middle_Name, Suffix, Email, Contact_Number, Address, Sex, Birth_Date, Password, Role_Description) 
-                    VALUES (@id, @first, @last, @middle, @suffix, @email, @contact, @address, @sex, @birthdate, @password, @role)";
+            INSERT INTO admin (Admin_ID, First_Name, Last_Name, Middle_Name, Suffix, Email, Contact_Number, Address, Sex, Birth_Date, Password, Role_Description) 
+            VALUES (@id, @first, @last, @middle, @suffix, @email, @contact, @address, @sex, @birthdate, @password, @role)";
 
                 using (MySqlCommand cmd = new MySqlCommand(insertQuery, conn))
                 {
@@ -511,6 +576,55 @@ namespace WindowsFormsApp1
                     }
                 }
             }
+        }
+
+        // =========================================
+        // VALIDATION METHODS
+        // =========================================
+
+        // Validate name (letters, spaces, hyphens, dots only)
+        private bool IsValidName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return false;
+            foreach (char c in name)
+            {
+                if (!char.IsLetter(c) && c != ' ' && c != '-' && c != '.')
+                    return false;
+            }
+            return true;
+        }
+
+        // Validate phone number (numbers only, 10-15 digits)
+        private bool IsValidPhoneNumber(string phone)
+        {
+            if (string.IsNullOrWhiteSpace(phone)) return true; // Optional field
+            foreach (char c in phone)
+            {
+                if (!char.IsDigit(c))
+                    return false;
+            }
+            return phone.Length >= 10 && phone.Length <= 15;
+        }
+
+        // Validate email format
+        private bool IsValidEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return false;
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == email;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        // Validate number (for IDs)
+        private bool IsValidNumber(string number)
+        {
+            return int.TryParse(number, out _);
         }
 
         private void ClearAdminCreateFields()
@@ -616,10 +730,63 @@ namespace WindowsFormsApp1
         {
             if (!btnSaveFaculty.Enabled) return;
 
-            if (string.IsNullOrWhiteSpace(txtFirstModify.Text) || txtFirstModify.Text == "First Name")
+            string firstName = txtFirstModify.Text.Trim();
+            string lastName = txtLastModify.Text.Trim();
+            string email = txtEmailModify.Text.Trim();
+            string contactNo = txtContactModify.Text.Trim();
+            string middleName = txtMiddleModify.Text.Trim();
+
+            // ========== VALIDATION ==========
+
+            if (firstName == "First Name" || string.IsNullOrWhiteSpace(firstName))
             {
-                MessageBox.Show("Please fill in all required fields.", "Incomplete", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please enter a valid First Name.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
+            }
+            if (!IsValidName(firstName))
+            {
+                MessageBox.Show("First Name can only contain letters, spaces, and hyphens.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (lastName == "Last Name" || string.IsNullOrWhiteSpace(lastName))
+            {
+                MessageBox.Show("Please enter a valid Last Name.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (!IsValidName(lastName))
+            {
+                MessageBox.Show("Last Name can only contain letters, spaces, and hyphens.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (email == "Email" || string.IsNullOrWhiteSpace(email))
+            {
+                MessageBox.Show("Please enter a valid Email address.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (!IsValidEmail(email))
+            {
+                MessageBox.Show("Please enter a valid email address.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(contactNo) && contactNo != "Contact No.")
+            {
+                if (!IsValidPhoneNumber(contactNo))
+                {
+                    MessageBox.Show("Contact Number must contain 10-15 digits only.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(middleName) && middleName != "Middle Name")
+            {
+                if (!IsValidName(middleName))
+                {
+                    MessageBox.Show("Middle Name can only contain letters, spaces, and hyphens.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
             }
 
             string sex = "";
@@ -629,9 +796,9 @@ namespace WindowsFormsApp1
             if (MessageBox.Show("Save changes?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
                 string updateQuery = @"
-                    UPDATE faculty SET First_Name=@first, Last_Name=@last, Middle_Name=@middle, Suffix=@suffix,
-                    Email=@email, Contact_Number=@contact, Address=@address, Sex=@sex, Birth_Date=@birthdate
-                    WHERE Faculty_ID=@id";
+            UPDATE faculty SET First_Name=@first, Last_Name=@last, Middle_Name=@middle, Suffix=@suffix,
+            Email=@email, Contact_Number=@contact, Address=@address, Sex=@sex, Birth_Date=@birthdate
+            WHERE Faculty_ID=@id";
 
                 try
                 {
@@ -640,12 +807,12 @@ namespace WindowsFormsApp1
                         conn.Open();
                         using (MySqlCommand cmd = new MySqlCommand(updateQuery, conn))
                         {
-                            cmd.Parameters.AddWithValue("@first", txtFirstModify.Text.Trim());
-                            cmd.Parameters.AddWithValue("@last", txtLastModify.Text.Trim());
+                            cmd.Parameters.AddWithValue("@first", firstName);
+                            cmd.Parameters.AddWithValue("@last", lastName);
                             cmd.Parameters.AddWithValue("@middle", txtMiddleModify.Text == "Middle Name" ? "" : txtMiddleModify.Text.Trim());
                             cmd.Parameters.AddWithValue("@suffix", txtSuffixModify.Text == "Jr., Sr., I, III" ? "" : txtSuffixModify.Text.Trim());
-                            cmd.Parameters.AddWithValue("@email", txtEmailModify.Text.Trim());
-                            cmd.Parameters.AddWithValue("@contact", txtContactModify.Text == "Contact No." ? "" : txtContactModify.Text.Trim());
+                            cmd.Parameters.AddWithValue("@email", email);
+                            cmd.Parameters.AddWithValue("@contact", contactNo == "Contact No." ? "" : contactNo);
                             cmd.Parameters.AddWithValue("@address", txtAddressModify.Text == "Address" ? "" : txtAddressModify.Text.Trim());
                             cmd.Parameters.AddWithValue("@sex", sex);
                             cmd.Parameters.AddWithValue("@birthdate", poisonDateTime2.Value);
@@ -729,22 +896,30 @@ namespace WindowsFormsApp1
         // =========================================
         private void btnAdminSearchModify_Click(object sender, EventArgs e)
         {
+            // Get search value and trim whitespace
             string searchValue = txtAdminSearchModify.Text?.Trim();
+
+            // Check if search is empty or still has placeholder text
             if (string.IsNullOrEmpty(searchValue) || searchValue == "Admin ID")
             {
-                MessageBox.Show("Please enter an Admin ID to search.", "Search", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please enter a valid Admin ID to search.", "Search Error",
+                               MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
+            // Validate that it's a number
             if (!int.TryParse(searchValue, out int adminId))
             {
-                MessageBox.Show("Admin ID must be a number.", "Invalid ID", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Admin ID must be a number (e.g., 1, 2, 64).", "Invalid ID",
+                               MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             string query = @"
-                SELECT Admin_ID, First_Name, Last_Name, Middle_Name, Suffix, Email, Contact_Number, Address, Sex, Birth_Date
-                FROM admin WHERE Admin_ID = @id";
+        SELECT Admin_ID, First_Name, Last_Name, Middle_Name, Suffix, 
+               Email, Contact_Number, Address, Sex, Birth_Date
+        FROM admin 
+        WHERE Admin_ID = @id";
 
             try
             {
@@ -758,27 +933,37 @@ namespace WindowsFormsApp1
                         {
                             if (reader.Read())
                             {
+                                // Store current admin ID
                                 currentAdminID = reader["Admin_ID"].ToString();
 
+                                // Populate text fields
                                 txtFirstAdminModify.Text = reader["First_Name"].ToString();
                                 txtLastAdminModify.Text = reader["Last_Name"].ToString();
                                 txtEmailAdminModify.Text = reader["Email"].ToString();
                                 txtAdminIDModify.Text = reader["Admin_ID"].ToString();
+
+                                // Handle nullable fields
                                 txtMiddleAdminModify.Text = reader["Middle_Name"]?.ToString() ?? "";
                                 txtSuffixAdminModify.Text = reader["Suffix"]?.ToString() ?? "";
                                 txtContactAdminModify.Text = reader["Contact_Number"]?.ToString() ?? "";
                                 txtAddressAdminModify.Text = reader["Address"]?.ToString() ?? "";
 
+                                // Set sex combo box
                                 string sex = reader["Sex"]?.ToString() ?? "";
-                                if (sex == "Male") cmbSexAdminModify.SelectedIndex = 1;
-                                else if (sex == "Female") cmbSexAdminModify.SelectedIndex = 2;
-                                else cmbSexAdminModify.SelectedIndex = 0;
+                                if (sex == "Male")
+                                    cmbSexAdminModify.SelectedIndex = 1;
+                                else if (sex == "Female")
+                                    cmbSexAdminModify.SelectedIndex = 2;
+                                else
+                                    cmbSexAdminModify.SelectedIndex = 0;
 
+                                // Set birth date
                                 if (reader["Birth_Date"] != DBNull.Value)
                                     dtpBirthdayAdminModify.Value = Convert.ToDateTime(reader["Birth_Date"]);
                                 else
                                     dtpBirthdayAdminModify.Value = DateTime.Now;
 
+                                // Change text color to black (remove placeholder appearance)
                                 txtFirstAdminModify.ForeColor = Color.Black;
                                 txtLastAdminModify.ForeColor = Color.Black;
                                 txtEmailAdminModify.ForeColor = Color.Black;
@@ -788,14 +973,21 @@ namespace WindowsFormsApp1
                                 txtAddressAdminModify.ForeColor = Color.Black;
                                 txtAdminIDModify.ForeColor = Color.Black;
 
+                                // Enable save and archive buttons
                                 btnSaveAdmin.Enabled = true;
                                 btnSaveAdmin.PrimaryColor = Color.Maroon;
                                 btnArchive.Enabled = true;
                                 btnArchive.PrimaryColor = Color.Maroon;
+
+                                // Show success
+                                MessageBox.Show($"Admin ID {adminId} found! You can now modify the details.",
+                                               "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             }
                             else
                             {
-                                MessageBox.Show($"Admin ID {adminId} not found!", "Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                MessageBox.Show($"Admin ID {adminId} not found in the database.",
+                                               "Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                ClearAdminModifyFields(); // Clear any previous data
                             }
                         }
                     }
@@ -803,7 +995,8 @@ namespace WindowsFormsApp1
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error: " + ex.Message);
+                MessageBox.Show($"Error searching admin: {ex.Message}",
+                               "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -999,23 +1192,23 @@ namespace WindowsFormsApp1
                 message.Subject = "Your PUPSIS Admin Account Credentials";
 
                 string body = $@"
-                <html>
-                <body>
-                    <h2>PUPSIS Admin Account</h2>
-                    <p>Dear <strong>{firstName} {lastName}</strong>,</p>
-                    <p>Your admin account has been created.</p>
-                    <p><strong>Admin ID:</strong> {adminId}</p>
-                    <p><strong>Email:</strong> {toEmail}</p>
-                    <p><strong>Password:</strong> {password}</p>
-                    <p>Best regards,<br>PUPSIS Administration</p>
-                </body>
-                </html>";
+        <html>
+        <body>
+            <h2>PUPSIS Admin Account</h2>
+            <p>Dear <strong>{firstName} {lastName}</strong>,</p>
+            <p>Your admin account has been created.</p>
+            <p><strong>Admin ID:</strong> {adminId}</p>
+            <p><strong>Email:</strong> {toEmail}</p>
+            <p><strong>Password:</strong> {password}</p>
+            <p>Best regards,<br>PUPSIS Administration</p>
+        </body>
+        </html>";
 
                 message.Body = new TextPart("html") { Text = body };
 
                 using (var client = new SmtpClient())
                 {
-                    client.Connect("smtp.gmail.com", 587, false);
+                    client.Connect("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
                     client.Authenticate("acuyatadaya@gmail.com", "mzbk knaf nbdx omgt");
                     client.Send(message);
                     client.Disconnect(true);
@@ -1023,9 +1216,10 @@ namespace WindowsFormsApp1
             }
             catch (Exception ex)
             {
-                // Email failed - just continue
+                MessageBox.Show($"Email NOT sent!\nError: {ex.Message}", "Email Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
+        
 
         // =========================================
         // PLACEHOLDER HANDLERS - FACULTY CREATE TAB
@@ -1517,6 +1711,23 @@ namespace WindowsFormsApp1
             {
                 txt.Text = "Admin ID";
                 txt.ForeColor = Color.DarkGray;
+            }
+        }
+        private void txtAdminSearchModify_Enter(object sender, EventArgs e)
+        {
+            if (txtAdminSearchModify.Text == "Admin ID")
+            {
+                txtAdminSearchModify.Text = "";
+                txtAdminSearchModify.StateCommon.Content.Color1 = Color.Black;
+            }
+        }
+
+        private void txtAdminSearchModify_Leave(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtAdminSearchModify.Text))
+            {
+                txtAdminSearchModify.Text = "Admin ID";
+                txtAdminSearchModify.StateCommon.Content.Color1 = Color.DarkGray;
             }
         }
 
