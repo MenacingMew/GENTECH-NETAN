@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using MySqlConnector;  // Make sure this is consistent
+using MySqlConnector;  
 
 namespace GENTECH_PROJECTPUPSIS
 {
@@ -66,7 +66,7 @@ namespace GENTECH_PROJECTPUPSIS
             string username = txtID.Text;
             string password = txtPassword.Text;
 
-            // Validate input
+           
             if (username == "ID" || string.IsNullOrWhiteSpace(username))
             {
                 MessageBox.Show("Please enter your ID", "Login Failed",
@@ -81,26 +81,10 @@ namespace GENTECH_PROJECTPUPSIS
                 return;
             }
 
-            // DEBUG: Show what we're trying
-            string debugInfo = $"Attempting login:\nUsername: {username}\nPassword: {password}\n\n";
-
-            // Authenticate and load user data
-            bool loginResult = AuthenticateAndLoadUser(username, password);
-
-            // DEBUG: Show result
-            debugInfo += $"Login Result: {loginResult}\n";
-            debugInfo += $"UserRole Set: {UserSession.UserRole}\n";
-            debugInfo += $"IsLoggedIn: {UserSession.IsLoggedIn}";
-
-            MessageBox.Show(debugInfo, "DEBUG - Login Attempt", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-            if (loginResult && UserSession.IsLoggedIn)
+         
+            if (AuthenticateAndLoadUser(username, password))
             {
-                // DEBUG: Confirm role before switching
-                MessageBox.Show($"Login successful!\nRole: {UserSession.UserRole}\nName: {UserSession.GetFullName()}",
-                    "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                // Open the appropriate form based on role
+                
                 switch (UserSession.UserRole)
                 {
                     case UserSession.ROLE_ADMIN:
@@ -126,11 +110,6 @@ namespace GENTECH_PROJECTPUPSIS
                         enrollment.Show();
                         this.FindForm()?.Hide();
                         break;
-
-                    default:
-                        MessageBox.Show($"Unknown role: {UserSession.UserRole}",
-                            "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        break;
                 }
             }
             else
@@ -139,8 +118,7 @@ namespace GENTECH_PROJECTPUPSIS
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-        // Main authentication method
+  
         private bool AuthenticateAndLoadUser(string username, string password)
         {
             try
@@ -149,19 +127,16 @@ namespace GENTECH_PROJECTPUPSIS
                 {
                     conn.Open();
 
-                    // Try STUDENT (using Student_ID or Email)
+
                     if (LoadStudentData(conn, username, password))
                         return true;
 
-                    // Try FACULTY (using Faculty_ID or Email)
                     if (LoadFacultyData(conn, username, password))
                         return true;
 
-                    // Try ENROLLMENT STAFF (using Credential_ID)
                     if (LoadEnrollmentStaffData(conn, username, password))
                         return true;
 
-                    // Try ADMIN (using Admin_ID or Email)
                     if (LoadAdminData(conn, username, password))
                         return true;
                 }
@@ -175,7 +150,7 @@ namespace GENTECH_PROJECTPUPSIS
             return false;
         }
 
-        // Load STUDENT data
+ 
         private bool LoadStudentData(MySqlConnection conn, string username, string password)
         {
             bool isNumeric = int.TryParse(username, out int studentId);
@@ -217,7 +192,7 @@ namespace GENTECH_PROJECTPUPSIS
                             birthDate: Convert.ToDateTime(reader["Birth_Date"]),
                             yearLevel: reader["Year_Level"] as int?,
                             programId: reader["Program_ID"] as int?,
-                            programCode: reader["Program_Code"]?.ToString(),   // NEW
+                            programCode: reader["Program_Code"]?.ToString(),   
                             programName: reader["Program_Name"]?.ToString(),
                             section: reader["Section"] as int?,
                             password: password
@@ -228,7 +203,7 @@ namespace GENTECH_PROJECTPUPSIS
             }
             return false;
         }
-        // Load FACULTY data
+
         private bool LoadFacultyData(MySqlConnection conn, string username, string password)
         {
             bool isNumeric = int.TryParse(username, out int facultyId);
@@ -277,7 +252,7 @@ namespace GENTECH_PROJECTPUPSIS
             return false;
         }
 
-        // Load ENROLLMENT STAFF data
+
         private bool LoadEnrollmentStaffData(MySqlConnection conn, string username, string password)
         {
             if (!int.TryParse(username, out int credentialId))
@@ -308,7 +283,7 @@ namespace GENTECH_PROJECTPUPSIS
                             birthDate: Convert.ToDateTime(reader["Birth_Date"]),
                             yearLevel: reader["Year_Level"] as int?,
                             programId: reader["Program_ID"] as int?,
-                            programCode: reader["Program_Code"]?.ToString(),   // NEW
+                            programCode: reader["Program_Code"]?.ToString(),   
                             programName: reader["Program_Name"]?.ToString(),
                             section: reader["Section"] as int?,
                             password: password
@@ -320,7 +295,6 @@ namespace GENTECH_PROJECTPUPSIS
             return false;
         }
 
-        // Load ADMIN data
         private bool LoadAdminData(MySqlConnection conn, string username, string password)
         {
             bool isNumeric = int.TryParse(username, out int adminId);
@@ -355,6 +329,13 @@ namespace GENTECH_PROJECTPUPSIS
                             lastName: reader["Last_Name"].ToString(),
                             email: reader["Email"].ToString(),
                             roleDescription: reader["Role_Description"].ToString(),
+                            middleName: reader["Middle_Name"]?.ToString(),
+                            suffix: reader["Suffix"]?.ToString(),
+                            contactNumber: reader["Contact_Number"]?.ToString(),
+                            address: reader["Address"]?.ToString(),
+                            sex: reader["Sex"]?.ToString(),
+                            birthDate: reader["Birth_Date"] != DBNull.Value ?
+                                Convert.ToDateTime(reader["Birth_Date"]) : (DateTime?)null,
                             password: password
                         );
                         return true;
@@ -364,7 +345,7 @@ namespace GENTECH_PROJECTPUPSIS
             return false;
         }
 
-        // Check if email exists in any user table
+
         private bool EmailExistsInDatabase(string email)
         {
             string query = @"

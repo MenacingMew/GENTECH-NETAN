@@ -12,7 +12,14 @@ namespace GENTECH_PROJECTPUPSIS
         public static string FirstName { get; private set; }
         public static string LastName { get; private set; }
         public static string Email { get; private set; }
+        public static string MiddleName { get; private set; }
+        public static string Suffix { get; private set; }
+        public static string Address { get; private set; }
+        public static string Gender { get; private set; }
+        public static DateTime? DateOfBirth { get; private set; }
         public static bool IsLoggedIn { get; private set; }
+
+
 
         // ==================== STUDENT-SPECIFIC FIELDS ====================
         public static int? StudentID { get; private set; }
@@ -152,6 +159,12 @@ namespace GENTECH_PROJECTPUPSIS
             string lastName,
             string email,
             string roleDescription,
+            string middleName = null,
+            string suffix = null,
+            string contactNumber = null,
+            string address = null,
+            string sex = null,
+            DateTime? birthDate = null,
             string password = null)
         {
             ClearSession();
@@ -160,7 +173,13 @@ namespace GENTECH_PROJECTPUPSIS
             UserRole = ROLE_ADMIN;
             FirstName = firstName;
             LastName = lastName;
+            MiddleName = middleName;
+            Suffix = suffix;
             Email = email;
+            ContactNumber = contactNumber;
+            Address = address;
+            Gender = sex;
+            DateOfBirth = birthDate;
             Password = password;
 
             AdminID = adminId;
@@ -173,7 +192,17 @@ namespace GENTECH_PROJECTPUPSIS
 
         public static string GetFullName()
         {
-            return $"{FirstName} {LastName}".Trim();
+            string fullName = FirstName ?? "";
+
+            if (!string.IsNullOrEmpty(MiddleName))
+                fullName += " " + MiddleName;
+
+            fullName += " " + (LastName ?? "");
+
+            if (!string.IsNullOrEmpty(Suffix))
+                fullName += " " + Suffix;
+
+            return fullName.Trim();
         }
 
         public static int? GetRoleSpecificID()
@@ -289,6 +318,9 @@ namespace GENTECH_PROJECTPUPSIS
 
             AdminID = null;
             RoleDescription = null;
+
+            MiddleName = null;
+            Suffix = null;
         }
     }
 }

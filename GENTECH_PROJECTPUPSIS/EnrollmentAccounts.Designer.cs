@@ -31,17 +31,17 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EnrollmentAccounts));
             this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
-            this.button11 = new System.Windows.Forms.Button();
+            this.btnProceed = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.kryptonPanel1 = new ComponentFactory.Krypton.Toolkit.KryptonPanel();
             this.lbl_totalAmount = new System.Windows.Forms.Label();
             this.lbl_misc = new System.Windows.Forms.Label();
             this.kryptonPanel2 = new ComponentFactory.Krypton.Toolkit.KryptonPanel();
-            this.radioButton2 = new System.Windows.Forms.RadioButton();
-            this.radioButton1 = new System.Windows.Forms.RadioButton();
-            this.btnOnlinebanking = new System.Windows.Forms.Button();
-            this.kryptonButton1 = new ComponentFactory.Krypton.Toolkit.KryptonButton();
+            this.btnGCash = new System.Windows.Forms.Button();
+            this.btnBDO = new System.Windows.Forms.Button();
+            this.btnUB = new System.Windows.Forms.Button();
+            this.btnOverTheCounter = new ComponentFactory.Krypton.Toolkit.KryptonButton();
             this.label3 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.kryptonPanel1)).BeginInit();
@@ -53,7 +53,7 @@
             // panel1
             // 
             this.panel1.Controls.Add(this.label1);
-            this.panel1.Controls.Add(this.button11);
+            this.panel1.Controls.Add(this.btnProceed);
             this.panel1.Controls.Add(this.label4);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
@@ -76,24 +76,25 @@
             this.label1.Text = "Tuition Fee";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // button11
+            // btnProceed
             // 
-            this.button11.Dock = System.Windows.Forms.DockStyle.Right;
-            this.button11.FlatAppearance.BorderSize = 0;
-            this.button11.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.button11.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button11.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
-            this.button11.ForeColor = System.Drawing.Color.Maroon;
-            this.button11.Image = ((System.Drawing.Image)(resources.GetObject("button11.Image")));
-            this.button11.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.button11.Location = new System.Drawing.Point(800, 0);
-            this.button11.Margin = new System.Windows.Forms.Padding(2);
-            this.button11.Name = "button11";
-            this.button11.Padding = new System.Windows.Forms.Padding(0, 0, 8, 0);
-            this.button11.Size = new System.Drawing.Size(202, 65);
-            this.button11.TabIndex = 37;
-            this.button11.Text = "Proceed to Payment";
-            this.button11.UseVisualStyleBackColor = true;
+            this.btnProceed.Dock = System.Windows.Forms.DockStyle.Right;
+            this.btnProceed.FlatAppearance.BorderSize = 0;
+            this.btnProceed.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.btnProceed.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnProceed.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            this.btnProceed.ForeColor = System.Drawing.Color.Maroon;
+            this.btnProceed.Image = ((System.Drawing.Image)(resources.GetObject("btnProceed.Image")));
+            this.btnProceed.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btnProceed.Location = new System.Drawing.Point(800, 0);
+            this.btnProceed.Margin = new System.Windows.Forms.Padding(2);
+            this.btnProceed.Name = "btnProceed";
+            this.btnProceed.Padding = new System.Windows.Forms.Padding(0, 0, 8, 0);
+            this.btnProceed.Size = new System.Drawing.Size(202, 65);
+            this.btnProceed.TabIndex = 37;
+            this.btnProceed.Text = "Proceed to Payment";
+            this.btnProceed.UseVisualStyleBackColor = true;
+            this.btnProceed.Click += new System.EventHandler(this.btnProceed_Click);
             // 
             // label4
             // 
@@ -149,7 +150,6 @@
             this.lbl_totalAmount.TabIndex = 61;
             this.lbl_totalAmount.Text = "Total Amount Due: P00,000.00";
             this.lbl_totalAmount.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.lbl_totalAmount.Click += new System.EventHandler(this.lbl_totalAmount_Click);
             // 
             // lbl_misc
             // 
@@ -163,14 +163,13 @@
             this.lbl_misc.TabIndex = 60;
             this.lbl_misc.Text = "Tuition Fee (00 units P00,000) P00,000.00\r\n\r\nMisc. Fee P00,000.00\r\n\r\nRegistration" +
     " Fee P000.00\r\n\r\nLaboratory Fee P000.00\r\n\r\n";
-            this.lbl_misc.Click += new System.EventHandler(this.lbl_misc_Click);
             // 
             // kryptonPanel2
             // 
-            this.kryptonPanel2.Controls.Add(this.radioButton2);
-            this.kryptonPanel2.Controls.Add(this.radioButton1);
-            this.kryptonPanel2.Controls.Add(this.btnOnlinebanking);
-            this.kryptonPanel2.Controls.Add(this.kryptonButton1);
+            this.kryptonPanel2.Controls.Add(this.btnGCash);
+            this.kryptonPanel2.Controls.Add(this.btnBDO);
+            this.kryptonPanel2.Controls.Add(this.btnUB);
+            this.kryptonPanel2.Controls.Add(this.btnOverTheCounter);
             this.kryptonPanel2.Controls.Add(this.label3);
             this.kryptonPanel2.Location = new System.Drawing.Point(570, 165);
             this.kryptonPanel2.Margin = new System.Windows.Forms.Padding(2);
@@ -181,79 +180,85 @@
             this.kryptonPanel2.StateNormal.Color2 = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.kryptonPanel2.TabIndex = 65;
             // 
-            // radioButton2
+            // btnGCash
             // 
-            this.radioButton2.AutoSize = true;
-            this.radioButton2.BackColor = System.Drawing.Color.Transparent;
-            this.radioButton2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.radioButton2.ForeColor = System.Drawing.Color.White;
-            this.radioButton2.Location = new System.Drawing.Point(210, 257);
-            this.radioButton2.Name = "radioButton2";
-            this.radioButton2.Size = new System.Drawing.Size(109, 17);
-            this.radioButton2.TabIndex = 70;
-            this.radioButton2.TabStop = true;
-            this.radioButton2.Text = "Down Payment";
-            this.radioButton2.UseVisualStyleBackColor = false;
+            this.btnGCash.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.btnGCash.BackColor = System.Drawing.Color.Transparent;
+            this.btnGCash.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.btnGCash.FlatAppearance.BorderSize = 0;
+            this.btnGCash.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
+            this.btnGCash.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnGCash.Image = ((System.Drawing.Image)(resources.GetObject("btnGCash.Image")));
+            this.btnGCash.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnGCash.Location = new System.Drawing.Point(233, 187);
+            this.btnGCash.Name = "btnGCash";
+            this.btnGCash.Size = new System.Drawing.Size(35, 41);
+            this.btnGCash.TabIndex = 74;
+            this.btnGCash.UseVisualStyleBackColor = false;
+            this.btnGCash.Click += new System.EventHandler(this.btnGCash_Click);
             // 
-            // radioButton1
+            // btnBDO
             // 
-            this.radioButton1.AutoSize = true;
-            this.radioButton1.BackColor = System.Drawing.Color.Transparent;
-            this.radioButton1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.radioButton1.ForeColor = System.Drawing.Color.White;
-            this.radioButton1.Location = new System.Drawing.Point(107, 257);
-            this.radioButton1.Name = "radioButton1";
-            this.radioButton1.Size = new System.Drawing.Size(97, 17);
-            this.radioButton1.TabIndex = 69;
-            this.radioButton1.TabStop = true;
-            this.radioButton1.Text = "Full Payment";
-            this.radioButton1.UseVisualStyleBackColor = false;
+            this.btnBDO.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.btnBDO.BackColor = System.Drawing.Color.Transparent;
+            this.btnBDO.FlatAppearance.BorderSize = 0;
+            this.btnBDO.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
+            this.btnBDO.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnBDO.Image = ((System.Drawing.Image)(resources.GetObject("btnBDO.Image")));
+            this.btnBDO.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnBDO.Location = new System.Drawing.Point(192, 187);
+            this.btnBDO.Name = "btnBDO";
+            this.btnBDO.Size = new System.Drawing.Size(35, 41);
+            this.btnBDO.TabIndex = 73;
+            this.btnBDO.UseVisualStyleBackColor = false;
             // 
-            // btnOnlinebanking
+            // btnUB
             // 
-            this.btnOnlinebanking.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.btnOnlinebanking.BackColor = System.Drawing.Color.Transparent;
-            this.btnOnlinebanking.FlatAppearance.BorderSize = 0;
-            this.btnOnlinebanking.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
-            this.btnOnlinebanking.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnOnlinebanking.Image = ((System.Drawing.Image)(resources.GetObject("btnOnlinebanking.Image")));
-            this.btnOnlinebanking.Location = new System.Drawing.Point(100, 151);
-            this.btnOnlinebanking.Name = "btnOnlinebanking";
-            this.btnOnlinebanking.Size = new System.Drawing.Size(210, 41);
-            this.btnOnlinebanking.TabIndex = 68;
-            this.btnOnlinebanking.UseVisualStyleBackColor = false;
+            this.btnUB.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.btnUB.BackColor = System.Drawing.Color.Transparent;
+            this.btnUB.FlatAppearance.BorderSize = 0;
+            this.btnUB.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White;
+            this.btnUB.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnUB.Image = ((System.Drawing.Image)(resources.GetObject("btnUB.Image")));
+            this.btnUB.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnUB.Location = new System.Drawing.Point(151, 187);
+            this.btnUB.Name = "btnUB";
+            this.btnUB.Size = new System.Drawing.Size(35, 41);
+            this.btnUB.TabIndex = 71;
+            this.btnUB.UseVisualStyleBackColor = false;
             // 
-            // kryptonButton1
+            // btnOverTheCounter
             // 
-            this.kryptonButton1.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.kryptonButton1.Location = new System.Drawing.Point(115, 204);
-            this.kryptonButton1.Name = "kryptonButton1";
-            this.kryptonButton1.PaletteMode = ComponentFactory.Krypton.Toolkit.PaletteMode.ProfessionalSystem;
-            this.kryptonButton1.Size = new System.Drawing.Size(183, 36);
-            this.kryptonButton1.StateCommon.Back.Color1 = System.Drawing.Color.Transparent;
-            this.kryptonButton1.StateCommon.Back.Color2 = System.Drawing.Color.Transparent;
-            this.kryptonButton1.StateCommon.Border.Color1 = System.Drawing.Color.White;
-            this.kryptonButton1.StateCommon.Border.DrawBorders = ((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders)((((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Top | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Bottom) 
+            this.btnOverTheCounter.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.btnOverTheCounter.Location = new System.Drawing.Point(115, 234);
+            this.btnOverTheCounter.Name = "btnOverTheCounter";
+            this.btnOverTheCounter.PaletteMode = ComponentFactory.Krypton.Toolkit.PaletteMode.ProfessionalSystem;
+            this.btnOverTheCounter.Size = new System.Drawing.Size(183, 36);
+            this.btnOverTheCounter.StateCommon.Back.Color1 = System.Drawing.Color.Transparent;
+            this.btnOverTheCounter.StateCommon.Back.Color2 = System.Drawing.Color.Transparent;
+            this.btnOverTheCounter.StateCommon.Border.Color1 = System.Drawing.Color.White;
+            this.btnOverTheCounter.StateCommon.Border.DrawBorders = ((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders)((((ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Top | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Bottom) 
             | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Left) 
             | ComponentFactory.Krypton.Toolkit.PaletteDrawBorders.Right)));
-            this.kryptonButton1.StateCommon.Border.Rounding = 15;
-            this.kryptonButton1.StateCommon.Content.ShortText.Color1 = System.Drawing.Color.White;
-            this.kryptonButton1.StateCommon.Content.ShortText.Font = new System.Drawing.Font("Segoe UI Semibold", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.kryptonButton1.StatePressed.Back.Color1 = System.Drawing.Color.Maroon;
-            this.kryptonButton1.StatePressed.Back.Color2 = System.Drawing.Color.Maroon;
-            this.kryptonButton1.StateTracking.Back.Color1 = System.Drawing.Color.White;
-            this.kryptonButton1.StateTracking.Back.Color2 = System.Drawing.Color.White;
-            this.kryptonButton1.StateTracking.Content.ShortText.Color1 = System.Drawing.Color.Maroon;
-            this.kryptonButton1.StateTracking.Content.ShortText.Font = new System.Drawing.Font("Segoe UI Semibold", 9.75F, System.Drawing.FontStyle.Bold);
-            this.kryptonButton1.TabIndex = 67;
-            this.kryptonButton1.Values.Text = "Over-the-Counter";
+            this.btnOverTheCounter.StateCommon.Border.Rounding = 15;
+            this.btnOverTheCounter.StateCommon.Content.ShortText.Color1 = System.Drawing.Color.White;
+            this.btnOverTheCounter.StateCommon.Content.ShortText.Font = new System.Drawing.Font("Segoe UI Semibold", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnOverTheCounter.StatePressed.Back.Color1 = System.Drawing.Color.Maroon;
+            this.btnOverTheCounter.StatePressed.Back.Color2 = System.Drawing.Color.Maroon;
+            this.btnOverTheCounter.StateTracking.Back.Color1 = System.Drawing.Color.White;
+            this.btnOverTheCounter.StateTracking.Back.Color2 = System.Drawing.Color.White;
+            this.btnOverTheCounter.StateTracking.Content.ShortText.Color1 = System.Drawing.Color.Maroon;
+            this.btnOverTheCounter.StateTracking.Content.ShortText.Font = new System.Drawing.Font("Segoe UI Semibold", 9.75F, System.Drawing.FontStyle.Bold);
+            this.btnOverTheCounter.TabIndex = 67;
+            this.btnOverTheCounter.Values.Text = "Over-the-Counter";
+            this.btnOverTheCounter.Click += new System.EventHandler(this.btnOverTheCounter_Click);
             // 
             // label3
             // 
             this.label3.BackColor = System.Drawing.Color.Transparent;
             this.label3.Font = new System.Drawing.Font("Segoe UI Black", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.ForeColor = System.Drawing.Color.White;
-            this.label3.Location = new System.Drawing.Point(109, 80);
+            this.label3.Location = new System.Drawing.Point(109, 103);
             this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(200, 68);
@@ -279,7 +284,6 @@
             this.kryptonPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.kryptonPanel2)).EndInit();
             this.kryptonPanel2.ResumeLayout(false);
-            this.kryptonPanel2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -289,17 +293,17 @@
 
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button button11;
+        private System.Windows.Forms.Button btnProceed;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
         private ComponentFactory.Krypton.Toolkit.KryptonPanel kryptonPanel1;
         private System.Windows.Forms.Label lbl_totalAmount;
         private System.Windows.Forms.Label lbl_misc;
         private ComponentFactory.Krypton.Toolkit.KryptonPanel kryptonPanel2;
-        private System.Windows.Forms.RadioButton radioButton2;
-        private System.Windows.Forms.RadioButton radioButton1;
-        private System.Windows.Forms.Button btnOnlinebanking;
-        private ComponentFactory.Krypton.Toolkit.KryptonButton kryptonButton1;
+        private ComponentFactory.Krypton.Toolkit.KryptonButton btnOverTheCounter;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button btnUB;
+        private System.Windows.Forms.Button btnBDO;
+        private System.Windows.Forms.Button btnGCash;
     }
 }
