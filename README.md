@@ -1,6 +1,9 @@
 Added enrollment credentials table
+
 Added section column to student table
+
 Added added enrolled_subjects table
+
 Added Reference column to payment table
 
 -- Add columns to admin
