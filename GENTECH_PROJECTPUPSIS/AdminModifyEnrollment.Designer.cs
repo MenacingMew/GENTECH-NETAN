@@ -228,8 +228,8 @@
             this.txtStudentID.TabIndex = 147;
             this.txtStudentID.Tag = "Student ID";
             this.txtStudentID.Text = "Student ID";
-            this.txtStudentID.Enter += new System.EventHandler(this.TextBox_Enter);
-            this.txtStudentID.Leave += new System.EventHandler(this.TextBox_Leave);
+            this.txtStudentID.Enter += new System.EventHandler(this.txtStudentID_Enter);
+            this.txtStudentID.Leave += new System.EventHandler(this.txtStudentID_Leave);
             // 
             // dvgModifyEnrollment
             // 

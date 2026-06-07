@@ -121,18 +121,19 @@
   <data name="btnBack.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAS
-        cQAAEnEB89x6jgAAAJ1JREFUOE+tk90JwjAURs+DE4h0APFJxJ3qDdIt3EZ8cADpDEXEKUqXUC4kUG8b
-        EmoO5Cnf+cgvZHCGjcCjhr2dS+Llt4OPg/4EB5uJorKDl5fDGAR2NjshIuu4XWBl8z+UkJ+LZIF1cVng
-        npQVX9AtLlBiq8jaQuCvGwgUKxk94fGZXLNLGqhmSoYatjYbxZT0AkebSaIlDtq57/wFzdl1PogC0O0A
-        AAAASUVORK5CYII=
+        cQAAEnEB89x6jgAAAKBJREFUOE9jIAakMTCIJDMw7EhkYNCCChEPoJovpTAw/AfiF0kMDDpQKcIApBmo
+        6QJUMwy/AhqoAlWCG+DQDMIr6hkYWKDKsANqaD6HppE4zUC/CQEVUlczUHwNQc0gADXgDNkGgABFXoAB
+        imIABqhmCNBLsCQMx0CxZUQbksHAIIbFkFfATKUEVUIYoBnyAsjWg0oRD0CGADXvwszODAwAzdl1PiYp
+        bEAAAAAASUVORK5CYII=
 </value>
   </data>
   <data name="btnSubmit.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAS
-        cQAAEnEB89x6jgAAAI1JREFUOE/Fk0EKgzAQRd/CE4j0AF0Wj/XPVor0AKVnEBFPIb2EEoibYWrSVPDD
-        rDL/MUnmg5HgJngJGnuWlKAVzIJFMAkutuerBFfBJ5q3CpC8SQSV4GEAocZTIPcjIN4kg6C2/a4i5FkM
-        iYDOAfRJwF9X2DGnH/EIs/d9edu4s8o/5aE8TJtinN+55hXftHQp3m92ogAAAABJRU5ErkJggg==
+        cQAAEnEB89x6jgAAAJZJREFUOE+9k8sJgDAQRPdgBSIW4FEsy9pExALEGkTEKsQm9AU2EMRPjODAu8SZ
+        ITFZOaoUyaGDRJf8RaiABTaYIdVPz8Kcwaphiynx2wnGCGoNukzwf0mlwU8lZzsZIVbbvTCaklaD70sw
+        mYJGQy4D3BdgCD8Chqvw80/E8Dl8dn1+rxHT1VN+NQ/hw2RFyIxz7xcW2QHftHQp7SL8ogAAAABJRU5E
+        rkJggg==
 </value>
   </data>
   <metadata name="dgTodaysSchedCourse.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">

@@ -857,6 +857,7 @@
             this.dvgFacultyView.StateCommon.HeaderColumn.Content.Font = new System.Drawing.Font("Segoe UI Semibold", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dvgFacultyView.StateCommon.HeaderColumn.Content.Padding = new System.Windows.Forms.Padding(10, -1, -1, -1);
             this.dvgFacultyView.TabIndex = 121;
+            this.dvgFacultyView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dvgFacultyView_CellClick);
             // 
             // dgTodaysSchedCourse
             // 
