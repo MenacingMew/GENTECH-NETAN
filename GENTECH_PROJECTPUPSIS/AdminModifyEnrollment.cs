@@ -13,18 +13,75 @@ namespace GENTECH_PROJECTPUPSIS
 
         private string currentStudentID = "";
         private int currentEnrollmentID = 0;
-        private int currentSemesterID = 1;
-
+        private int currentSemesterID = 0;
         public AdminModifyEnrollment()
         {
             InitializeComponent();
             SetupDataGridView();
 
+            currentSemesterID = GetCurrentSemesterID();
             // Add this event to handle checkbox clicks
             dvgModifyEnrollment.CellClick += DvgModifyEnrollment_CellClick;
             dvgModifyEnrollment.CurrentCellDirtyStateChanged += DvgModifyEnrollment_CurrentCellDirtyStateChanged;
         }
 
+        private int GetCurrentSemesterID()
+        {
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    // Get the current date
+                    DateTime today = DateTime.Now;
+
+                    // Find the semester that includes today's date
+                    string query = @"SELECT Semester_ID, Semester_Name, Academic_Year 
+                            FROM semester 
+                            WHERE Start_Date <= @today AND End_Date >= @today
+                            ORDER BY Semester_ID DESC 
+                            LIMIT 1";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@today", today);
+
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                int semesterId = Convert.ToInt32(reader["Semester_ID"]);
+                                string semesterName = reader["Semester_Name"].ToString();
+                                string academicYear = reader["Academic_Year"].ToString();
+
+                                // Optional: Show what semester is active
+                                Console.WriteLine($"Active Semester: {semesterName} ({academicYear}) - ID: {semesterId}");
+
+                                return semesterId;
+                            }
+                        }
+                    }
+
+                    // If no semester matches today's date, get the latest semester
+                    string fallbackQuery = "SELECT Semester_ID FROM semester ORDER BY Start_Date DESC LIMIT 1";
+                    using (MySqlCommand fallbackCmd = new MySqlCommand(fallbackQuery, conn))
+                    {
+                        object result = fallbackCmd.ExecuteScalar();
+                        if (result != null)
+                        {
+                            return Convert.ToInt32(result);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error getting current semester: " + ex.Message);
+            }
+
+            return 1; // Last resort fallback
+        }
         // This handles when user clicks the checkbox
         private void DvgModifyEnrollment_CellClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -164,15 +221,40 @@ namespace GENTECH_PROJECTPUPSIS
                 MessageBox.Show("Error: " + ex.Message);
             }
         }
+        private int GetExistingEnrollment(string studentID, int semesterID)
+        {
+            string query = @"SELECT Enrollment_ID FROM enrollment 
+                    WHERE Student_ID = @studentID AND Semester_ID = @semesterID
+                    ORDER BY Enrollment_ID DESC LIMIT 1";
 
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@studentID", studentID);
+                    cmd.Parameters.AddWithValue("@semesterID", semesterID);
+                    object result = cmd.ExecuteScalar();
+
+                    return result != null ? Convert.ToInt32(result) : 0;
+                }
+            }
+        }
         private void LoadStudentEnrolledSubjects()
         {
             dvgModifyEnrollment.Rows.Clear();
 
-            currentEnrollmentID = GetOrCreateEnrollment(currentStudentID, currentSemesterID);
-            if (currentEnrollmentID == 0) return;
+            // Find existing enrollment instead of creating one
+            currentEnrollmentID = GetExistingEnrollment(currentStudentID, currentSemesterID);
 
-            // UPDATED QUERY - using enrolled_subjects table
+            if (currentEnrollmentID == 0)
+            {
+                MessageBox.Show("No enrollment found for this student in the current semester.\n" +
+                               "Student must enroll first through the Enrollment Confirmation.",
+                               "No Enrollment", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
             string query = @"
         SELECT 
             es.Enrolled_Subject_ID,
@@ -181,9 +263,8 @@ namespace GENTECH_PROJECTPUPSIS
             c.Course_Name,
             c.Units
         FROM enrolled_subjects es
-        JOIN enrollment e ON es.Enrollment_ID = e.Enrollment_ID
         JOIN course c ON es.Course_ID = c.Course_ID
-        WHERE e.Enrollment_ID = @enrollmentID";
+        WHERE es.Enrollment_ID = @enrollmentID";
 
             try
             {
@@ -206,22 +287,13 @@ namespace GENTECH_PROJECTPUPSIS
                                 int rowIndex = dvgModifyEnrollment.Rows.Add();
                                 DataGridViewRow row = dvgModifyEnrollment.Rows[rowIndex];
 
-                                // Column indices:
-                                // 0: Checkbox
-                                // 1: Course_ID (hidden)
-                                // 2: Enrolled_Subject_ID (hidden)
-                                // 3: Subject Code
-                                // 4: Description
-                                // 5: Units
-                                // 6: Schedule (optional - you can add later)
-
-                                row.Cells[0].Value = false;
-                                row.Cells[1].Value = reader["Course_ID"].ToString();
-                                row.Cells[2].Value = reader["Enrolled_Subject_ID"].ToString();
-                                row.Cells[3].Value = reader["Course_Code"].ToString();
-                                row.Cells[4].Value = reader["Course_Name"].ToString();
-                                row.Cells[5].Value = units;
-                                row.Cells[6].Value = "TBA"; // Schedule placeholder
+                                row.Cells[0].Value = false;                                          // Checkbox
+                                row.Cells[1].Value = reader["Course_ID"].ToString();                 // Course_ID (hidden)
+                                row.Cells[2].Value = reader["Enrolled_Subject_ID"].ToString();       // Enrolled_Subject_ID (hidden)
+                                row.Cells[3].Value = reader["Course_Code"].ToString();               // Subject Code
+                                row.Cells[4].Value = reader["Course_Name"].ToString();               // Description
+                                row.Cells[5].Value = units;                                          // Units
+                                row.Cells[6].Value = "TBA";                                          // Schedule
                             }
 
                             UpdateSummaryLabels(totalUnits);
@@ -235,46 +307,15 @@ namespace GENTECH_PROJECTPUPSIS
             }
         }
 
-        private int GetOrCreateEnrollment(string studentID, int semesterID)
-        {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
-                conn.Open();
-
-                // Check if enrollment exists
-                string checkQuery = "SELECT Enrollment_ID FROM enrollment WHERE Student_ID = @studentID AND Semester_ID = @semesterID";
-                using (MySqlCommand cmd = new MySqlCommand(checkQuery, conn))
-                {
-                    cmd.Parameters.AddWithValue("@studentID", studentID);
-                    cmd.Parameters.AddWithValue("@semesterID", semesterID);
-                    object result = cmd.ExecuteScalar();
-                    if (result != null && result != DBNull.Value)
-                    {
-                        return Convert.ToInt32(result);
-                    }
-                }
-
-                // Create new enrollment
-                string insertQuery = @"INSERT INTO enrollment (Student_ID, Semester_ID, Enrollment_Date, Enrollment_Status) 
-                               VALUES (@studentID, @semesterID, @date, 'Active')";
-                using (MySqlCommand cmd = new MySqlCommand(insertQuery, conn))
-                {
-                    cmd.Parameters.AddWithValue("@studentID", studentID);
-                    cmd.Parameters.AddWithValue("@semesterID", semesterID);
-                    cmd.Parameters.AddWithValue("@date", DateTime.Now);
-                    cmd.ExecuteNonQuery();
-                }
-
-                // Get new enrollment ID
-                using (MySqlCommand cmd = new MySqlCommand("SELECT LAST_INSERT_ID()", conn))
-                {
-                    return Convert.ToInt32(cmd.ExecuteScalar());
-                }
-            }
-        }
 
         private void btnAddSubjects_Click(object sender, EventArgs e)
         {
+            if (currentEnrollmentID == 0)
+            {
+                MessageBox.Show("No existing enrollment found. Student must enroll first.",
+                    "No Enrollment", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             if (string.IsNullOrEmpty(currentStudentID))
             {
                 MessageBox.Show("Please search for a student first!", "Warning",
