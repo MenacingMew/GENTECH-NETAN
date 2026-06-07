@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
-using MySql.Data.MySqlClient;  // Change to this
+using MySqlConnector;
 
 namespace GENTECH_PROJECTPUPSIS
 {

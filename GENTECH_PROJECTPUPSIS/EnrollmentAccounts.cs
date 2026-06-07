@@ -4,6 +4,7 @@ using System;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using MySqlConnector;
 using QRCoder;
 using QRCoderQRCode = QRCoder.QRCode;
 
@@ -11,8 +12,8 @@ namespace GENTECH_PROJECTPUPSIS
 {
     public partial class EnrollmentAccounts : UserControl
     {
-        private string connectionString = "server=localhost;port=3306;database=gentechdb_admin;uid=root;pwd=1234;";
-        string pickedMethod;
+     private string connectionString = "Server=localhost;Database=your_db;Uid=root;Pwd=1234;";
+        private string pickedMethod = "";
 
         public EnrollmentAccounts()
         {
@@ -369,15 +370,14 @@ namespace GENTECH_PROJECTPUPSIS
 
                 LoadStatementOfAccount();
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show(
-                    "Payment verification failed. Please contact the registrar.",
-                    "Verification Failed",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                MessageBox.Show($"Error loading account: {ex.Message}",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+      
 
 
         private async Task<bool> VerifyAndCompletePayment(string referenceNumber, decimal amount)
@@ -530,7 +530,7 @@ namespace GENTECH_PROJECTPUPSIS
         {
             try
             {
-                using (MySqlConnection conn = new MySqlConnection(connectionString))
+                using (MySqlConnection conn = DbConnection.GetConnection())
                 {
                     await conn.OpenAsync();
 

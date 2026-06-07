@@ -6,6 +6,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using MySqlConnector;
 
 namespace WindowsFormsApp1
 {
@@ -32,77 +33,148 @@ namespace WindowsFormsApp1
         public AdminStudentRecords()
         {
             InitializeComponent();
+
         }
 
         private void AdminStudentRecords_Load(object sender, EventArgs e)
         {
-            InitStudentViewGrid();
-            InitModifyGrid();
-            SetupModifyForm();
+            InitStudentViewGrid();   // sets up columns + btnView
+            LoadStudentViewGrid();   // binds data only
 
-            btnBack.Visible = false;
-            hopeRoundButton2.Visible = false;
-            edit_btn.Visible = false;
-            btn_Archive.Visible = false;
+            InitModifyGrid();        // sets up columns + btnEdit
+            LoadModifyGrid();        // binds data only
 
-            if (cmbFilterFacultyView.Items.Count > 0)
+            InitStudentViewFilter();
+        }
+        private void LoadStudentViewGrid()
+        {
+            using (MySqlConnection conn = DbConnection.GetConnection())
             {
-                cmbFilterFacultyView.Items.Clear();
-                cmbFilterFacultyView.Items.Add("All");
-                cmbFilterFacultyView.Items.Add("BSIT");
-                cmbFilterFacultyView.Items.Add("BSCS");
-                cmbFilterFacultyView.SelectedIndex = 0;
-            }
+                conn.Open();
+                string query = @"
+            SELECT 
+                TempStudent_ID                                AS `Student ID`,
+                CONCAT_WS(' ', FirstName, NULLIF(MiddleName, ''), LastName) AS `Full Name`,
+                Email,
+                ApplicationDate                               AS `Application Date`
+            FROM temporary_student";
 
-            if (poisonComboBox1.Items.Count > 0)
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                using (MySqlDataAdapter adapter = new MySqlDataAdapter(cmd))
+                {
+                    DataTable dt = new DataTable();
+                    adapter.Fill(dt);
+                    dvgStudentView.DataSource = dt;
+                }
+            }
+        }
+        private void LoadModifyGrid()
+        {
+            using (MySqlConnection conn = DbConnection.GetConnection())
             {
-                poisonComboBox1.Items.Clear();
-                poisonComboBox1.Items.Add("All");
-                poisonComboBox1.Items.Add("BSIT");
-                poisonComboBox1.Items.Add("BSCS");
-                poisonComboBox1.SelectedIndex = 0;
-            }
+                conn.Open();
+                string query = @"
+            SELECT 
+                TempStudent_ID                                AS `Student ID`,
+                CONCAT_WS(' ', FirstName, NULLIF(MiddleName, ''), LastName) AS `Full Name`,
+                Email,
+                ApplicationDate                               AS `Application Date`
+            FROM temporary_student";
 
-            LoadStudentData();
-            LoadModifyData();
-            LoadProgramsIntoCombo();
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                using (MySqlDataAdapter da = new MySqlDataAdapter(cmd))
+                {
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    kryptonDataGridView1.DataSource = dt;
+                }
+            }
         }
 
-        private void SetupModifyForm()
-        {
-            panel3.Controls.Clear();
+        // ─────────────────────────────────────────────
+        // LOAD
+        // ─────────────────────────────────────────────
 
-            Panel editPanel = new Panel();
-            editPanel.Dock = DockStyle.Fill;
-            editPanel.BackColor = Color.White;
-            editPanel.AutoScroll = true;
-            editPanel.Padding = new Padding(20);
+        // ─────────────────────────────────────────────
+        // INIT HELPERS
+        // ─────────────────────────────────────────────
+        private void InitStudentViewGrid()
+        {
+            dvgStudentView.Columns.Clear();
+            dvgStudentView.AutoGenerateColumns = false;
+
+            // Data columns first
+            dvgStudentView.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Student ID", HeaderText = "Student ID", Name = "Student ID", Width = 150 });
+            dvgStudentView.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Full Name", HeaderText = "Full Name", Name = "Full Name", Width = 200 });
+            dvgStudentView.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Email", HeaderText = "Email", Name = "Email", Width = 200 });
+            dvgStudentView.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Application Date", HeaderText = "Application Date", Name = "Application Date", Width = 130 });
+
+            // Action button LAST
+            dvgStudentView.Columns.Add(new DataGridViewButtonColumn
+            {
+                HeaderText = "Action",
+                Name = "btnView",
+                Text = "View",
+                UseColumnTextForButtonValue = true,
+                Width = 90,
+                FlatStyle = FlatStyle.Standard
+            });
+        }
+
+        /*private void AddStudentViewRow(string studentID, string name, string program)
+        {
+            int index = dvgStudentView.Rows.Add();
+            DataGridViewRow row = dvgStudentView.Rows[index];
+            row.Cells[0].Value = studentID;
+            row.Cells[1].Value = name;
+            row.Cells[2].Value = program;
+        }
+        */
+        private void InitStudentViewFilter()
+        {
+            cmbFilterFacultyView.Items.Clear();
+            cmbFilterFacultyView.Items.Add("All");
+            cmbFilterFacultyView.Items.Add("Name");
+            cmbFilterFacultyView.Items.Add("Student ID");
+            cmbFilterFacultyView.Items.Add("Program");
+            cmbFilterFacultyView.SelectedIndex = 0;
+
+            ShowAllColumnsInStudentView();
+        }
 
             int y = 20;
             int labelWidth = 150;
             int controlWidth = 250;
             int leftMargin = 30;
 
-            Label lblTitle = new Label()
-            {
-                Text = "MODIFY STUDENT",
-                Font = new Font("Segoe UI", 18, FontStyle.Bold),
-                ForeColor = Color.Maroon,
-                Location = new Point(leftMargin, y),
-                Size = new Size(400, 40)
-            };
-            editPanel.Controls.Add(lblTitle);
-            y += 60;
+        private void InitModifyGrid()
+        {
+            kryptonDataGridView1.Columns.Clear();
+            kryptonDataGridView1.AutoGenerateColumns = false;
 
-            // Search section
-            Label lblSearch = new Label()
+            kryptonDataGridView1.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Student ID", HeaderText = "Student ID", Name = "Student ID", Width = 150 });
+            kryptonDataGridView1.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Full Name", HeaderText = "Full Name", Name = "Full Name", Width = 200 });
+            kryptonDataGridView1.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Email", HeaderText = "Email", Name = "Email", Width = 200 });
+            kryptonDataGridView1.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Application Date", HeaderText = "Application Date", Name = "Application Date", Width = 130 });
+
+            // Action button LAST
+            kryptonDataGridView1.Columns.Add(new DataGridViewButtonColumn
             {
-                Text = "Student ID:",
-                Font = new Font("Segoe UI", 11, FontStyle.Bold),
-                Location = new Point(leftMargin, y),
-                Size = new Size(labelWidth, 35)
-            };
-            editPanel.Controls.Add(lblSearch);
+                HeaderText = "Action",
+                Name = "btnEdit",
+                Text = "Edit",
+                UseColumnTextForButtonValue = true,
+                Width = 80
+            });
+        }
+        private void AddStudentRow(string studentID, string name, string program)
+        {
+            int index = kryptonDataGridView1.Rows.Add();
+            DataGridViewRow row = kryptonDataGridView1.Rows[index];
+            row.Cells[0].Value = studentID;
+            row.Cells[1].Value = name;
+            row.Cells[2].Value = program;
+        }
 
             KryptonTextBox txtStudentSearch = new KryptonTextBox()
             {
@@ -389,7 +461,183 @@ namespace WindowsFormsApp1
                 catch (Exception ex) { MessageBox.Show("Error: " + ex.Message); }
             }
         }
+  
 
+        private void btnUploadCSV_Click(object sender, EventArgs e)
+      {
+          if (lines.Length == 0)
+            {
+                MessageBox.Show("The selected CSV file is empty.", "Invalid File",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Validate headers
+            string[] headers = lines[0].Split(',');
+            bool headersValid =
+                headers.Length >= 4 &&
+                headers[0].Trim() == "FirstName" &&
+                headers[1].Trim() == "MiddleName" &&
+                headers[2].Trim() == "LastName" &&
+                headers[3].Trim() == "Email";
+
+            if (!headersValid)
+            {
+                MessageBox.Show(
+                    "Invalid CSV format. Please use the correct import template.\n\n" +
+                    "Expected columns:\n  FirstName, MiddleName, LastName, Email\n\n" +
+                    "Note: Do not use the exported CSV — that is a different format.",
+                    "Wrong CSV Format", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // ── Setup grid ──────────────────────────────────
+            dgvPreview.Rows.Clear();
+            dgvPreview.Columns.Clear();
+
+
+
+            dgvPreview.Columns.Add("FirstName", "First Name");
+            dgvPreview.Columns.Add("MiddleName", "Middle Name");
+            dgvPreview.Columns.Add("LastName", "Last Name");
+            dgvPreview.Columns.Add("Email", "Email");
+
+            // ── Add rows, skip blank lines ───────────────────
+            for (int i = 1; i < lines.Length; i++)
+            {
+                string line = lines[i].Trim();
+                if (string.IsNullOrWhiteSpace(line)) continue;
+
+                string[] values = line.Split(',');
+                if (values.Length < 4) continue;
+
+                // Skip if ALL four values are empty
+                if (string.IsNullOrWhiteSpace(values[0]) &&
+                    string.IsNullOrWhiteSpace(values[1]) &&
+                    string.IsNullOrWhiteSpace(values[2]) &&
+                    string.IsNullOrWhiteSpace(values[3])) continue;
+                
+                dgvPreview.Rows.Add(values[0].Trim(), values[1].Trim(),
+                                    values[2].Trim(), values[3].Trim());
+            }
+
+            // ── Style ────────────────────────────────────────
+            dgvPreview.AllowUserToAddRows = false;
+            dgvPreview.RowHeadersVisible = false;
+            dgvPreview.EnableHeadersVisualStyles = false;
+            dgvPreview.ColumnHeadersVisible = true;
+            dgvPreview.Font = new Font("Segoe UI", 11f);
+
+            dgvPreview.ColumnHeadersDefaultCellStyle.BackColor = Color.DarkRed;
+            dgvPreview.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvPreview.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 11f, FontStyle.Bold);
+
+            foreach (DataGridViewColumn col in dgvPreview.Columns)
+                col.MinimumWidth = 100;
+
+            dgvPreview.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            Control parent = groupBox1.Parent;
+            parent.Controls.Add(dgvPreview);
+            // ── Center in parent ─────────────────────────────
+            int gridWidth = parent.Width - 100;
+            int gridX = (parent.Width - gridWidth) / 2;
+            int gridY = 80; // push down below the "Create Student" title // adjust this number until it sits below the form fields
+                            // At the bottom of btnUploadCSV_Click, before dgvPreview.Visible = true
+            dgvPreview.Parent.Height = dgvPreview.Location.Y + dgvPreview.Height + 20;
+            dgvPreview.Location = new Point(gridX, gridY);
+            dgvPreview.Width = gridWidth;
+            dgvPreview.Height = (dgvPreview.Rows.Count + 1) * dgvPreview.RowTemplate.Height
+                                  + dgvPreview.ColumnHeadersHeight + 20;
+
+            // ── Show/hide controls ───────────────────────────
+
+            dgvPreview.AllowUserToAddRows = false;
+            dgvPreview.Visible = true;
+            btnConfirm.Visible = true;
+            btnCancel.Visible = true;
+            btnRandomized.Visible = false;
+            btnCreateStudent.Visible = false;
+
+            groupBox1.Visible = false;
+            dgvPreview.Visible = true;
+            btnConfirm.Visible = true;
+            btnCancel.Visible = true;
+            btnRandomized.Visible = false;
+            btnCreateStudent.Visible = false;
+        }
+  } 
+
+      private void btnConfirm_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show(
+                "Are you sure you want to import these students into the database?\n\nMake sure the file format is correct before proceeding.",
+                "Confirm Import",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (result != DialogResult.Yes) return;
+
+            int successCount = 0;
+            int failCount = 0;
+
+            try
+            {
+                using (MySqlConnection conn = DbConnection.GetConnection())
+                {
+                    conn.Open();
+
+                    foreach (DataGridViewRow row in dgvPreview.Rows)
+                    {
+                        if (row.IsNewRow) continue;
+
+                        try
+                        {
+                            string firstName = row.Cells[0].Value?.ToString();
+                            string middleName = row.Cells[1].Value?.ToString();
+                            string lastName = row.Cells[2].Value?.ToString();
+                            string email = row.Cells[3].Value?.ToString();
+
+                            if (string.IsNullOrWhiteSpace(firstName) ||
+                                string.IsNullOrWhiteSpace(lastName) ||
+                                string.IsNullOrWhiteSpace(email))
+                            {
+                                failCount++;
+                                continue;
+                            }
+
+                            string query = @"
+                        INSERT INTO temporary_student 
+                            (Credential_ID, PasswordHash, FirstName, MiddleName, LastName, Email, Status)
+                        VALUES 
+                            (0, '', @FirstName, @MiddleName, @LastName, @Email, 0)";
+
+                            using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                            {
+                                cmd.Parameters.AddWithValue("@FirstName", firstName);
+                                cmd.Parameters.AddWithValue("@MiddleName", string.IsNullOrWhiteSpace(middleName) ? (object)DBNull.Value : middleName);
+                                cmd.Parameters.AddWithValue("@LastName", lastName);
+                                cmd.Parameters.AddWithValue("@Email", email);
+                                cmd.ExecuteNonQuery();
+                                successCount++;
+                            }
+                        }
+                        catch
+                        {
+                            failCount++;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Database error:\n\n{ex.Message}",
+                    "Import Failed",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return;
+            }
+      }
         private void btn_Archive_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(currentStudentID))
@@ -414,6 +662,16 @@ namespace WindowsFormsApp1
                 }
                 catch (Exception ex) { MessageBox.Show("Error: " + ex.Message); }
             }
+
+            MessageBox.Show(
+                $"Import complete.\n\n✔ {successCount} inserted\n✘ {failCount} skipped",
+                "Import Result",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+
+            ResetCSVPreview();
+            LoadStudentViewGrid();
+            LoadModifyGrid();
         }
 
         private void ClearModifyForm()
@@ -438,11 +696,22 @@ namespace WindowsFormsApp1
 
         private void InitStudentViewGrid()
         {
+            groupBox1.Controls.Add(dgvPreview);
+            dgvPreview.Visible = false;
+            btnConfirm.Visible = false;
+            btnCancel.Visible = false;
+            btnCreateStudent.Visible = true;
+            btnRandomized.Visible = true;
+            groupBox1.Visible = true;
+
+            dgvPreview.Parent.Height = 315; // ← replace with the original panel height from the designer
+
             dvgStudentView.Columns.Clear();
             dvgStudentView.Columns.Add(new DataGridViewTextBoxColumn() { Name = "StudentID", HeaderText = "Student ID", Width = 300 });
             dvgStudentView.Columns.Add(new DataGridViewTextBoxColumn() { Name = "Name", HeaderText = "Name", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill });
             dvgStudentView.Columns.Add(new DataGridViewTextBoxColumn() { Name = "Program", HeaderText = "Program", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill });
             dvgStudentView.Columns.Add(new DataGridViewButtonColumn() { HeaderText = "Action", Name = "btnView", Text = "View", Width = 90, UseColumnTextForButtonValue = true });
+
         }
 
         private void InitModifyGrid()
@@ -510,8 +779,38 @@ namespace WindowsFormsApp1
 
         private void dvgStudentView_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0 || e.ColumnIndex != dvgStudentView.Columns["btnView"].Index) return;
-            string studentID = dvgStudentView.Rows[e.RowIndex].Cells["StudentID"].Value.ToString();
+            if (e.RowIndex < 0 || !dvgStudentView.Columns.Contains("btnView"))
+                return;
+            if (e.ColumnIndex != dvgStudentView.Columns["btnView"].Index)
+                return;
+
+            var cellValue = dvgStudentView.Rows[e.RowIndex].Cells["Student ID"].Value;
+            if (cellValue == null) return;
+
+            string studentId = cellValue.ToString();
+            OpenStudentView(studentId, panel2);
+
+            dvgStudentView.Visible = false;
+            cmbFilterFacultyView.Visible = false;
+            hopeRoundButton2.Visible = true;
+            _activeView = ActiveView.StudentView;
+        }
+
+        // ─────────────────────────────────────────────
+        // MODIFY TAB — FILTER
+        // ─────────────────────────────────────────────
+        private void poisonComboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ApplyColumnFilter(
+                cmbFilterFacultyView.SelectedItem?.ToString() ?? string.Empty,
+                isModifyGrid: true);
+        }
+
+        private void ShowAllColumnsInModifyView()
+        {
+            foreach (DataGridViewColumn col in kryptonDataGridView1.Columns)
+                col.Visible = true;
+        }
 
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
@@ -564,12 +863,24 @@ namespace WindowsFormsApp1
 
         private void kryptonDataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0 || e.ColumnIndex != kryptonDataGridView1.Columns["btnEdit"].Index) return;
+            if (e.RowIndex < 0 || e.ColumnIndex != kryptonDataGridView1.Columns["btnEdit"].Index)
+                return;
+
+            var cellValue = kryptonDataGridView1.Rows[e.RowIndex].Cells[0].Value;
+
+            if (cellValue == null) return;
+
+            id = cellValue.ToString();
+
+            OpenStudentEdit(id, panel3);
+
             kryptonDataGridView1.Visible = false;
-            poisonComboBox1.Visible = false;
-            hopeRoundButton1.Visible = false;
+            cmbFilterFacultyView.Visible = false;
+
             btnBack.Visible = true;
-            panel3.Visible = true;
+            edit_btn.Visible = true;
+            btn_Archive.Visible = true;
+
             _activeView = ActiveView.ModifyEdit;
 
             string studentID = kryptonDataGridView1.Rows[e.RowIndex].Cells["StudentID"].Value.ToString();
@@ -602,8 +913,21 @@ namespace WindowsFormsApp1
             _activeView = ActiveView.None;
             LoadStudentData(); LoadModifyData();
         }
+        private void AddEditButtonColumn()
+        {
+            if (!kryptonDataGridView1.Columns.Contains("btnEdit"))
+            {
+                DataGridViewButtonColumn btn = new DataGridViewButtonColumn();
+                btn.HeaderText = "Action";
+                btn.Name = "btnEdit";
+                btn.Text = "Edit";
+                btn.UseColumnTextForButtonValue = true;
+                btn.Width = 80;
 
-        private void btnCreateStudent_Click(object sender, EventArgs e)
+                kryptonDataGridView1.Columns.Add(btn);
+            }
+        }
+        private void btnClear_Click(object sender, EventArgs e)
         {
             string firstName = txtFirstName.Text.Trim(), lastName = txtLastName.Text.Trim(), email = txtEmail.Text.Trim(), contactNo = txtContactNo.Text.Trim();
             if (firstName == "First Name" || string.IsNullOrWhiteSpace(firstName)) { MessageBox.Show("Please enter First Name.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
@@ -713,8 +1037,32 @@ namespace WindowsFormsApp1
 
         private void TextBox_Enter(object sender, EventArgs e)
         {
-            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
-            if (txt != null && txt.ForeColor == Color.DarkGray) { txt.Text = ""; txt.ForeColor = Color.Black; }
+            if (id == null)
+            {
+                MessageBox.Show(
+                    "No student record is currently loaded for editing.",
+                    "No Record Loaded",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+                return;
+            }
+
+            // TODO: actual save-to-DB logic here using `id`
+
+            MessageBox.Show(
+                "The student record has been successfully updated.",
+                "Changes Saved",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+
+            panel3.Controls.Clear();
+            panel3.Visible = false;
+            kryptonDataGridView1.Visible = true;
+            cmbFilterFacultyView.Visible = true;
+            edit_btn.Visible = false;
+            btnBack.Visible = false;
+            btn_Archive.Visible = false;
+            _activeView = ActiveView.None;
         }
         private void TextBox_Leave(object sender, EventArgs e)
         {
@@ -727,13 +1075,159 @@ namespace WindowsFormsApp1
             if (comboBox != null && comboBox.SelectedIndex != 0) comboBox.ForeColor = Color.Black;
         }
 
-        private void tabPage2_Click(object sender, EventArgs e) { }
-        private void tabPage4_Click(object sender, EventArgs e) { }
-        private void foreverTabPage1_SelectedIndexChanged(object sender, EventArgs e) { }
-        private void panel1_Paint(object sender, PaintEventArgs e) { }
-        private void panel2_Paint(object sender, PaintEventArgs e) { }
-        private void btnSeachModify_Click(object sender, EventArgs e) { }
-        private void btnSaveChanges_Click(object sender, EventArgs e) { }
-        private void btnClear_Click(object sender, EventArgs e) { }
+        private void tabPage1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void openFileDialog1_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+
+        }
+
+        private void label15_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label11_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dgvPreview_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void label36_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtStudentID_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label14_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtEmail_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtSuffix_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label7_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label5_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label9_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label6_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label13_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtContactNo_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtLastName_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label12_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtMiddleName_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label10_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtFirstName_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtAddress_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label8_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dtpBirthDay_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void panel3_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void label27_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label4_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

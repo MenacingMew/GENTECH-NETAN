@@ -7,17 +7,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using MySql.Data.MySqlClient;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using System.IO;
+using MySqlConnector;
 
 
 namespace GENTECH_PROJECTPUPSIS
 {
     public partial class EnrollmentHome : UserControl
     {
-        private string connectionString = "server=localhost;port=3306;database=gentechdb_admin;uid=root;pwd=1234;";
 
         public EnrollmentHome()
         {
@@ -74,7 +73,7 @@ namespace GENTECH_PROJECTPUPSIS
         {
             try
             {
-                using (MySqlConnection conn = new MySqlConnection(connectionString))
+                using (MySqlConnection conn = DbConnection.GetConnection())
                 {
                     conn.Open();
 
@@ -122,7 +121,7 @@ namespace GENTECH_PROJECTPUPSIS
         {
             try
             {
-                using (MySqlConnection conn = new MySqlConnection(connectionString))
+                using (MySqlConnection conn = DbConnection.GetConnection())
                 {
                     conn.Open();
 
@@ -166,7 +165,7 @@ namespace GENTECH_PROJECTPUPSIS
         {
             try
             {
-                using (MySqlConnection conn = new MySqlConnection(connectionString))
+                using (MySqlConnection conn = DbConnection.GetConnection())
                 {
                     conn.Open();
 
@@ -527,7 +526,21 @@ namespace GENTECH_PROJECTPUPSIS
             return false;
         }
 
-     
+        private string GetCurrentSemester()
+        {
+            int month = DateTime.Now.Month;
+            if (month >= 8 && month <= 12) return "1st Semester";
+            else if (month >= 1 && month <= 5) return "2nd Semester";
+            else return "Summer";
+        }
+
+        private string GetCurrentAcademicYear()
+        {
+            int year = DateTime.Now.Year;
+            int month = DateTime.Now.Month;
+            if (month >= 6) return $"{year}-{year + 1}";
+            else return $"{year - 1}-{year}";
+        }
 
         private void btnRefresh_Click(object sender, EventArgs e)
         {

@@ -35,11 +35,11 @@
             this.label9 = new System.Windows.Forms.Label();
             this.txtSearchName = new ComponentFactory.Krypton.Toolkit.KryptonTextBox();
             this.dvgEnrollees = new ComponentFactory.Krypton.Toolkit.KryptonDataGridView();
-            this.btnExport = new GENTECH_PROJECTPUPSIS.CustomButton();
             this.asd = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Role = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Email = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Status = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.btnExport = new GENTECH_PROJECTPUPSIS.CustomButton();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -139,7 +139,7 @@
             this.dvgEnrollees.Name = "dvgEnrollees";
             this.dvgEnrollees.RowHeadersVisible = false;
             this.dvgEnrollees.RowTemplate.Height = 40;
-            this.dvgEnrollees.Size = new System.Drawing.Size(933, 425);
+            this.dvgEnrollees.Size = new System.Drawing.Size(933, 405);
             this.dvgEnrollees.StateCommon.Background.Color1 = System.Drawing.Color.White;
             this.dvgEnrollees.StateCommon.BackStyle = ComponentFactory.Krypton.Toolkit.PaletteBackStyle.GridBackgroundList;
             this.dvgEnrollees.StateCommon.DataCell.Content.Color1 = System.Drawing.Color.Black;
@@ -156,26 +156,6 @@
             this.dvgEnrollees.StateCommon.HeaderColumn.Content.Font = new System.Drawing.Font("Segoe UI Semibold", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dvgEnrollees.StateCommon.HeaderColumn.Content.Padding = new System.Windows.Forms.Padding(10, -1, -1, -1);
             this.dvgEnrollees.TabIndex = 122;
-            // 
-            // btnExport
-            // 
-            this.btnExport.BackColor = System.Drawing.Color.DarkRed;
-            this.btnExport.BackgroundColor = System.Drawing.Color.DarkRed;
-            this.btnExport.BorderColor = System.Drawing.Color.PaleVioletRed;
-            this.btnExport.BorderRadius = 25;
-            this.btnExport.BorderSize = 0;
-            this.btnExport.FlatAppearance.BorderSize = 0;
-            this.btnExport.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnExport.Font = new System.Drawing.Font("Segoe UI Semibold", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnExport.ForeColor = System.Drawing.Color.White;
-            this.btnExport.Location = new System.Drawing.Point(806, 78);
-            this.btnExport.Name = "btnExport";
-            this.btnExport.Size = new System.Drawing.Size(173, 29);
-            this.btnExport.TabIndex = 123;
-            this.btnExport.Text = "Export as Csv";
-            this.btnExport.TextColor = System.Drawing.Color.White;
-            this.btnExport.UseVisualStyleBackColor = false;
-            this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
             // 
             // asd
             // 
@@ -205,6 +185,26 @@
             // 
             this.Status.HeaderText = "Status";
             this.Status.Name = "Status";
+            // 
+            // btnExport
+            // 
+            this.btnExport.BackColor = System.Drawing.Color.DarkRed;
+            this.btnExport.BackgroundColor = System.Drawing.Color.DarkRed;
+            this.btnExport.BorderColor = System.Drawing.Color.PaleVioletRed;
+            this.btnExport.BorderRadius = 25;
+            this.btnExport.BorderSize = 0;
+            this.btnExport.FlatAppearance.BorderSize = 0;
+            this.btnExport.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnExport.Font = new System.Drawing.Font("Segoe UI Semibold", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnExport.ForeColor = System.Drawing.Color.White;
+            this.btnExport.Location = new System.Drawing.Point(806, 78);
+            this.btnExport.Name = "btnExport";
+            this.btnExport.Size = new System.Drawing.Size(173, 29);
+            this.btnExport.TabIndex = 123;
+            this.btnExport.Text = "Export as Csv";
+            this.btnExport.TextColor = System.Drawing.Color.White;
+            this.btnExport.UseVisualStyleBackColor = false;
+            this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
             // 
             // label1
             // 

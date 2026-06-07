@@ -577,56 +577,55 @@ namespace WindowsFormsApp1
                 }
             }
         }
+      
+  // =========================================
+  // VALIDATION METHODS - ADD THESE MANUALLY
+  // =========================================
 
-        // =========================================
-        // VALIDATION METHODS
-        // =========================================
+  // Validate name (letters, spaces, hyphens, dots only)
+  private bool IsValidName(string name)
+  {
+      if (string.IsNullOrWhiteSpace(name)) return false;
+      foreach (char c in name)
+      {
+          if (!char.IsLetter(c) && c != ' ' && c != '-' && c != '.')
+              return false;
+      }
+      return true;
+  }
 
-        // Validate name (letters, spaces, hyphens, dots only)
-        private bool IsValidName(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name)) return false;
-            foreach (char c in name)
-            {
-                if (!char.IsLetter(c) && c != ' ' && c != '-' && c != '.')
-                    return false;
-            }
-            return true;
-        }
+  // Validate phone number (numbers only, 10-15 digits)
+  private bool IsValidPhoneNumber(string phone)
+  {
+      if (string.IsNullOrWhiteSpace(phone)) return true; // Optional field
+      foreach (char c in phone)
+      {
+          if (!char.IsDigit(c))
+              return false;
+      }
+      return phone.Length >= 10 && phone.Length <= 15;
+  }
 
-        // Validate phone number (numbers only, 10-15 digits)
-        private bool IsValidPhoneNumber(string phone)
-        {
-            if (string.IsNullOrWhiteSpace(phone)) return true; // Optional field
-            foreach (char c in phone)
-            {
-                if (!char.IsDigit(c))
-                    return false;
-            }
-            return phone.Length >= 10 && phone.Length <= 15;
-        }
+  // Validate email format
+  private bool IsValidEmail(string email)
+  {
+      if (string.IsNullOrWhiteSpace(email)) return false;
+      try
+      {
+          var addr = new System.Net.Mail.MailAddress(email);
+          return addr.Address == email;
+      }
+      catch
+      {
+          return false;
+      }
+  }
 
-        // Validate email format
-        private bool IsValidEmail(string email)
-        {
-            if (string.IsNullOrWhiteSpace(email)) return false;
-            try
-            {
-                var addr = new System.Net.Mail.MailAddress(email);
-                return addr.Address == email;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        // Validate number (for IDs)
-        private bool IsValidNumber(string number)
-        {
-            return int.TryParse(number, out _);
-        }
-
+  // Validate number (for IDs)
+  private bool IsValidNumber(string number)
+  {
+      return int.TryParse(number, out _);
+  }     
         private void ClearAdminCreateFields()
         {
             txtFirstAdminCreate.Text = "First Name";
@@ -730,63 +729,10 @@ namespace WindowsFormsApp1
         {
             if (!btnSaveFaculty.Enabled) return;
 
-            string firstName = txtFirstModify.Text.Trim();
-            string lastName = txtLastModify.Text.Trim();
-            string email = txtEmailModify.Text.Trim();
-            string contactNo = txtContactModify.Text.Trim();
-            string middleName = txtMiddleModify.Text.Trim();
-
-            // ========== VALIDATION ==========
-
-            if (firstName == "First Name" || string.IsNullOrWhiteSpace(firstName))
+            if (string.IsNullOrWhiteSpace(txtFirstModify.Text) || txtFirstModify.Text == "First Name")
             {
-                MessageBox.Show("Please enter a valid First Name.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please fill in all required fields.", "Incomplete", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
-            }
-            if (!IsValidName(firstName))
-            {
-                MessageBox.Show("First Name can only contain letters, spaces, and hyphens.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            if (lastName == "Last Name" || string.IsNullOrWhiteSpace(lastName))
-            {
-                MessageBox.Show("Please enter a valid Last Name.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-            if (!IsValidName(lastName))
-            {
-                MessageBox.Show("Last Name can only contain letters, spaces, and hyphens.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            if (email == "Email" || string.IsNullOrWhiteSpace(email))
-            {
-                MessageBox.Show("Please enter a valid Email address.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-            if (!IsValidEmail(email))
-            {
-                MessageBox.Show("Please enter a valid email address.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            if (!string.IsNullOrEmpty(contactNo) && contactNo != "Contact No.")
-            {
-                if (!IsValidPhoneNumber(contactNo))
-                {
-                    MessageBox.Show("Contact Number must contain 10-15 digits only.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-            }
-
-            if (!string.IsNullOrEmpty(middleName) && middleName != "Middle Name")
-            {
-                if (!IsValidName(middleName))
-                {
-                    MessageBox.Show("Middle Name can only contain letters, spaces, and hyphens.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
             }
 
             string sex = "";
@@ -796,9 +742,9 @@ namespace WindowsFormsApp1
             if (MessageBox.Show("Save changes?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
                 string updateQuery = @"
-            UPDATE faculty SET First_Name=@first, Last_Name=@last, Middle_Name=@middle, Suffix=@suffix,
-            Email=@email, Contact_Number=@contact, Address=@address, Sex=@sex, Birth_Date=@birthdate
-            WHERE Faculty_ID=@id";
+                    UPDATE faculty SET First_Name=@first, Last_Name=@last, Middle_Name=@middle, Suffix=@suffix,
+                    Email=@email, Contact_Number=@contact, Address=@address, Sex=@sex, Birth_Date=@birthdate
+                    WHERE Faculty_ID=@id";
 
                 try
                 {
@@ -807,12 +753,12 @@ namespace WindowsFormsApp1
                         conn.Open();
                         using (MySqlCommand cmd = new MySqlCommand(updateQuery, conn))
                         {
-                            cmd.Parameters.AddWithValue("@first", firstName);
-                            cmd.Parameters.AddWithValue("@last", lastName);
+                            cmd.Parameters.AddWithValue("@first", txtFirstModify.Text.Trim());
+                            cmd.Parameters.AddWithValue("@last", txtLastModify.Text.Trim());
                             cmd.Parameters.AddWithValue("@middle", txtMiddleModify.Text == "Middle Name" ? "" : txtMiddleModify.Text.Trim());
                             cmd.Parameters.AddWithValue("@suffix", txtSuffixModify.Text == "Jr., Sr., I, III" ? "" : txtSuffixModify.Text.Trim());
-                            cmd.Parameters.AddWithValue("@email", email);
-                            cmd.Parameters.AddWithValue("@contact", contactNo == "Contact No." ? "" : contactNo);
+                            cmd.Parameters.AddWithValue("@email", txtEmailModify.Text.Trim());
+                            cmd.Parameters.AddWithValue("@contact", txtContactModify.Text == "Contact No." ? "" : txtContactModify.Text.Trim());
                             cmd.Parameters.AddWithValue("@address", txtAddressModify.Text == "Address" ? "" : txtAddressModify.Text.Trim());
                             cmd.Parameters.AddWithValue("@sex", sex);
                             cmd.Parameters.AddWithValue("@birthdate", poisonDateTime2.Value);
@@ -896,30 +842,22 @@ namespace WindowsFormsApp1
         // =========================================
         private void btnAdminSearchModify_Click(object sender, EventArgs e)
         {
-            // Get search value and trim whitespace
             string searchValue = txtAdminSearchModify.Text?.Trim();
-
-            // Check if search is empty or still has placeholder text
             if (string.IsNullOrEmpty(searchValue) || searchValue == "Admin ID")
             {
-                MessageBox.Show("Please enter a valid Admin ID to search.", "Search Error",
-                               MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please enter an Admin ID to search.", "Search", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // Validate that it's a number
             if (!int.TryParse(searchValue, out int adminId))
             {
-                MessageBox.Show("Admin ID must be a number (e.g., 1, 2, 64).", "Invalid ID",
-                               MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Admin ID must be a number.", "Invalid ID", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             string query = @"
-        SELECT Admin_ID, First_Name, Last_Name, Middle_Name, Suffix, 
-               Email, Contact_Number, Address, Sex, Birth_Date
-        FROM admin 
-        WHERE Admin_ID = @id";
+                SELECT Admin_ID, First_Name, Last_Name, Middle_Name, Suffix, Email, Contact_Number, Address, Sex, Birth_Date
+                FROM admin WHERE Admin_ID = @id";
 
             try
             {
@@ -933,37 +871,27 @@ namespace WindowsFormsApp1
                         {
                             if (reader.Read())
                             {
-                                // Store current admin ID
                                 currentAdminID = reader["Admin_ID"].ToString();
 
-                                // Populate text fields
                                 txtFirstAdminModify.Text = reader["First_Name"].ToString();
                                 txtLastAdminModify.Text = reader["Last_Name"].ToString();
                                 txtEmailAdminModify.Text = reader["Email"].ToString();
                                 txtAdminIDModify.Text = reader["Admin_ID"].ToString();
-
-                                // Handle nullable fields
                                 txtMiddleAdminModify.Text = reader["Middle_Name"]?.ToString() ?? "";
                                 txtSuffixAdminModify.Text = reader["Suffix"]?.ToString() ?? "";
                                 txtContactAdminModify.Text = reader["Contact_Number"]?.ToString() ?? "";
                                 txtAddressAdminModify.Text = reader["Address"]?.ToString() ?? "";
 
-                                // Set sex combo box
                                 string sex = reader["Sex"]?.ToString() ?? "";
-                                if (sex == "Male")
-                                    cmbSexAdminModify.SelectedIndex = 1;
-                                else if (sex == "Female")
-                                    cmbSexAdminModify.SelectedIndex = 2;
-                                else
-                                    cmbSexAdminModify.SelectedIndex = 0;
+                                if (sex == "Male") cmbSexAdminModify.SelectedIndex = 1;
+                                else if (sex == "Female") cmbSexAdminModify.SelectedIndex = 2;
+                                else cmbSexAdminModify.SelectedIndex = 0;
 
-                                // Set birth date
                                 if (reader["Birth_Date"] != DBNull.Value)
                                     dtpBirthdayAdminModify.Value = Convert.ToDateTime(reader["Birth_Date"]);
                                 else
                                     dtpBirthdayAdminModify.Value = DateTime.Now;
 
-                                // Change text color to black (remove placeholder appearance)
                                 txtFirstAdminModify.ForeColor = Color.Black;
                                 txtLastAdminModify.ForeColor = Color.Black;
                                 txtEmailAdminModify.ForeColor = Color.Black;
@@ -973,21 +901,14 @@ namespace WindowsFormsApp1
                                 txtAddressAdminModify.ForeColor = Color.Black;
                                 txtAdminIDModify.ForeColor = Color.Black;
 
-                                // Enable save and archive buttons
                                 btnSaveAdmin.Enabled = true;
                                 btnSaveAdmin.PrimaryColor = Color.Maroon;
                                 btnArchive.Enabled = true;
                                 btnArchive.PrimaryColor = Color.Maroon;
-
-                                // Show success
-                                MessageBox.Show($"Admin ID {adminId} found! You can now modify the details.",
-                                               "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             }
                             else
                             {
-                                MessageBox.Show($"Admin ID {adminId} not found in the database.",
-                                               "Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                ClearAdminModifyFields(); // Clear any previous data
+                                MessageBox.Show($"Admin ID {adminId} not found!", "Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                             }
                         }
                     }
@@ -995,8 +916,7 @@ namespace WindowsFormsApp1
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error searching admin: {ex.Message}",
-                               "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error: " + ex.Message);
             }
         }
 
@@ -1179,6 +1099,162 @@ namespace WindowsFormsApp1
             btnClearView.Visible = false;
         }
 
+// =========================================
+// SEARCH ADMIN (Modify Admin Tab)
+// =========================================
+private void btnAdminSearchModify_Click(object sender, EventArgs e)
+{
+    string searchValue = txtAdminSearchModify.Text?.Trim();
+    if (string.IsNullOrEmpty(searchValue) || searchValue == "Admin ID")
+    {
+        MessageBox.Show("Please enter an Admin ID to search.", "Search", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        return;
+    }
+
+    if (!int.TryParse(searchValue, out int adminId))
+    {
+        MessageBox.Show("Admin ID must be a number (e.g., 1, 2, 64).", "Invalid ID", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        return;
+    }
+
+    string query = @"SELECT Admin_ID, First_Name, Last_Name, Middle_Name, Suffix, Email, Contact_Number, Address, Sex, Birth_Date FROM admin WHERE Admin_ID = @id";
+
+    try
+    {
+        using (MySqlConnection conn = new MySqlConnection(connectionString))
+        {
+            conn.Open();
+            using (MySqlCommand cmd = new MySqlCommand(query, conn))
+            {
+                cmd.Parameters.AddWithValue("@id", adminId);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        currentAdminID = reader["Admin_ID"].ToString();
+                        txtFirstAdminModify.Text = reader["First_Name"].ToString();
+                        txtLastAdminModify.Text = reader["Last_Name"].ToString();
+                        txtEmailAdminModify.Text = reader["Email"].ToString();
+                        txtAdminIDModify.Text = reader["Admin_ID"].ToString();
+                        txtMiddleAdminModify.Text = reader["Middle_Name"]?.ToString() ?? "";
+                        txtSuffixAdminModify.Text = reader["Suffix"]?.ToString() ?? "";
+                        txtContactAdminModify.Text = reader["Contact_Number"]?.ToString() ?? "";
+                        txtAddressAdminModify.Text = reader["Address"]?.ToString() ?? "";
+
+                        string sex = reader["Sex"]?.ToString() ?? "";
+                        if (sex == "Male") cmbSexAdminModify.SelectedIndex = 1;
+                        else if (sex == "Female") cmbSexAdminModify.SelectedIndex = 2;
+                        else cmbSexAdminModify.SelectedIndex = 0;
+
+                        if (reader["Birth_Date"] != DBNull.Value)
+                            dtpBirthdayAdminModify.Value = Convert.ToDateTime(reader["Birth_Date"]);
+                        else
+                            dtpBirthdayAdminModify.Value = DateTime.Now;
+
+                        btnSaveAdmin.Enabled = true;
+                        btnArchive.Enabled = true;
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Admin ID {adminId} not found!", "Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        ClearAdminModifyFields();
+                    }
+                }
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show("Error: " + ex.Message);
+    }
+}
+
+private void btnSaveAdmin_Click(object sender, EventArgs e)
+{
+    if (!btnSaveAdmin.Enabled) return;
+
+    if (string.IsNullOrWhiteSpace(txtFirstAdminModify.Text) || txtFirstAdminModify.Text == "First Name" ||
+        string.IsNullOrWhiteSpace(txtLastAdminModify.Text) || txtLastAdminModify.Text == "Last Name")
+    {
+        MessageBox.Show("First Name and Last Name are required.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        return;
+    }
+
+    if (MessageBox.Show("Save changes?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+    {
+        string sex = "";
+        if (cmbSexAdminModify.SelectedIndex == 1) sex = "Male";
+        else if (cmbSexAdminModify.SelectedIndex == 2) sex = "Female";
+
+        string updateQuery = @"UPDATE admin SET First_Name=@first, Last_Name=@last, Middle_Name=@middle, Suffix=@suffix, Email=@email, Contact_Number=@contact, Address=@address, Sex=@sex, Birth_Date=@birthdate WHERE Admin_ID=@id";
+
+        try
+        {
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+                using (MySqlCommand cmd = new MySqlCommand(updateQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@first", txtFirstAdminModify.Text.Trim());
+                    cmd.Parameters.AddWithValue("@last", txtLastAdminModify.Text.Trim());
+                    cmd.Parameters.AddWithValue("@middle", txtMiddleAdminModify.Text == "Middle Name" ? "" : txtMiddleAdminModify.Text.Trim());
+                    cmd.Parameters.AddWithValue("@suffix", txtSuffixAdminModify.Text == "Jr., Sr., I, III" ? "" : txtSuffixAdminModify.Text.Trim());
+                    cmd.Parameters.AddWithValue("@email", txtEmailAdminModify.Text.Trim());
+                    cmd.Parameters.AddWithValue("@contact", txtContactAdminModify.Text == "Contact No." ? "" : txtContactAdminModify.Text.Trim());
+                    cmd.Parameters.AddWithValue("@address", txtAddressAdminModify.Text == "Address" ? "" : txtAddressAdminModify.Text.Trim());
+                    cmd.Parameters.AddWithValue("@sex", sex);
+                    cmd.Parameters.AddWithValue("@birthdate", dtpBirthdayAdminModify.Value);
+                    cmd.Parameters.AddWithValue("@id", int.Parse(currentAdminID));
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            MessageBox.Show("Admin saved!", "Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            ClearAdminModifyFields();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Error: " + ex.Message);
+        }
+    }
+}
+
+private void btnArchive_Click(object sender, EventArgs e)
+{
+    if (string.IsNullOrEmpty(currentAdminID)) return;
+    if (MessageBox.Show($"Archive admin {currentAdminID}?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+    {
+        using (MySqlConnection conn = new MySqlConnection(connectionString))
+        {
+            conn.Open();
+            using (MySqlCommand cmd = new MySqlCommand("DELETE FROM admin WHERE Admin_ID = @id", conn))
+            {
+                cmd.Parameters.AddWithValue("@id", currentAdminID);
+                cmd.ExecuteNonQuery();
+            }
+        }
+        MessageBox.Show("Admin archived.", "Archived", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        ClearAdminModifyFields();
+    }
+}
+
+private void ClearAdminModifyFields()
+{
+    txtFirstAdminModify.Text = "First Name";
+    txtMiddleAdminModify.Text = "Middle Name";
+    txtLastAdminModify.Text = "Last Name";
+    txtSuffixAdminModify.Text = "Jr., Sr., I, III";
+    txtAddressAdminModify.Text = "Address";
+    txtContactAdminModify.Text = "Contact No.";
+    txtEmailAdminModify.Text = "Email";
+    txtAdminIDModify.Text = "Admin ID";
+    // Reset colors...
+    cmbSexAdminModify.SelectedIndex = 0;
+    dtpBirthdayAdminModify.Value = DateTime.Now;
+    btnSaveAdmin.Enabled = false;
+    btnArchive.Enabled = false;
+    txtAdminSearchModify.Text = "Admin ID";
+    currentAdminID = "";
+}
         // =========================================
         // SEND EMAIL
         // =========================================
@@ -1192,23 +1268,23 @@ namespace WindowsFormsApp1
                 message.Subject = "Your PUPSIS Admin Account Credentials";
 
                 string body = $@"
-        <html>
-        <body>
-            <h2>PUPSIS Admin Account</h2>
-            <p>Dear <strong>{firstName} {lastName}</strong>,</p>
-            <p>Your admin account has been created.</p>
-            <p><strong>Admin ID:</strong> {adminId}</p>
-            <p><strong>Email:</strong> {toEmail}</p>
-            <p><strong>Password:</strong> {password}</p>
-            <p>Best regards,<br>PUPSIS Administration</p>
-        </body>
-        </html>";
+                <html>
+                <body>
+                    <h2>PUPSIS Admin Account</h2>
+                    <p>Dear <strong>{firstName} {lastName}</strong>,</p>
+                    <p>Your admin account has been created.</p>
+                    <p><strong>Admin ID:</strong> {adminId}</p>
+                    <p><strong>Email:</strong> {toEmail}</p>
+                    <p><strong>Password:</strong> {password}</p>
+                    <p>Best regards,<br>PUPSIS Administration</p>
+                </body>
+                </html>";
 
                 message.Body = new TextPart("html") { Text = body };
 
                 using (var client = new SmtpClient())
                 {
-                    client.Connect("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
+                    client.Connect("smtp.gmail.com", 587, false);
                     client.Authenticate("acuyatadaya@gmail.com", "mzbk knaf nbdx omgt");
                     client.Send(message);
                     client.Disconnect(true);
@@ -1216,15 +1292,282 @@ namespace WindowsFormsApp1
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Email NOT sent!\nError: {ex.Message}", "Email Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                // Email failed - just continue
             }
         }
-        
 
         // =========================================
         // PLACEHOLDER HANDLERS - FACULTY CREATE TAB
         // =========================================
         private void TextBox_Enter(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && txt.ForeColor == Color.DarkGray)
+            {
+                MessageBox.Show("Please enter a valid Admin ID to search.", "Search Error",
+                               MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+        }
+
+        private void TextBox_Leave(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && string.IsNullOrWhiteSpace(txt.Text))
+            {
+                txt.Text = txt.Tag?.ToString() ?? "";
+                txt.ForeColor = Color.DarkGray;
+            }
+        }
+
+        // =========================================
+        // PLACEHOLDER HANDLERS - FACULTY MODIFY TAB
+        // =========================================
+        private void txtFirstModify_Enter(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && txt.ForeColor == Color.DarkGray)
+            {
+                txt.Text = "";
+                txt.ForeColor = Color.Black;
+            }
+        }
+
+        private void txtFirstModify_Leave(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && string.IsNullOrWhiteSpace(txt.Text))
+            {
+                txt.Text = txt.Tag?.ToString() ?? "First Name";
+                txt.ForeColor = Color.DarkGray;
+            }
+        }
+
+        // Apply the same pattern for all modify tab textboxes
+        private void txtMiddleModify_Enter(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && txt.ForeColor == Color.DarkGray)
+            {
+                txt.Text = "";
+                txt.ForeColor = Color.Black;
+            }
+        }
+
+        private void txtMiddleModify_Leave(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && string.IsNullOrWhiteSpace(txt.Text))
+            {
+                txt.Text = "Middle Name";
+                txt.ForeColor = Color.DarkGray;
+            }
+        }
+
+        private void txtLastModify_Enter(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && txt.ForeColor == Color.DarkGray)
+            {
+                txt.Text = "";
+                txt.ForeColor = Color.Black;
+            }
+        }
+
+        private void txtLastModify_Leave(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && string.IsNullOrWhiteSpace(txt.Text))
+            {
+                txt.Text = "Last Name";
+                txt.ForeColor = Color.DarkGray;
+            }
+        }
+
+        private void txtSuffixModify_Enter(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && txt.ForeColor == Color.DarkGray)
+            {
+                txt.Text = "";
+                txt.ForeColor = Color.Black;
+            }
+        }
+
+        private void txtSuffixModify_Leave(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && string.IsNullOrWhiteSpace(txt.Text))
+            {
+                txt.Text = "Jr., Sr., I, III";
+                txt.ForeColor = Color.DarkGray;
+            }
+        }
+
+        private void txtAddressModify_Enter(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && txt.ForeColor == Color.DarkGray)
+            {
+                txt.Text = "";
+                txt.ForeColor = Color.Black;
+            }
+        }
+
+        private void txtAddressModify_Leave(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && string.IsNullOrWhiteSpace(txt.Text))
+            {
+                txt.Text = "Address";
+                txt.ForeColor = Color.DarkGray;
+            }
+        }
+
+        private void txtContactModify_Enter(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && txt.ForeColor == Color.DarkGray)
+            {
+                txt.Text = "";
+                txt.ForeColor = Color.Black;
+            }
+        }
+
+        private void txtContactModify_Leave(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && string.IsNullOrWhiteSpace(txt.Text))
+            {
+                txt.Text = "Contact No.";
+                txt.ForeColor = Color.DarkGray;
+            }
+        }
+
+        private void txtEmailModify_Enter(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && txt.ForeColor == Color.DarkGray)
+            {
+                txt.Text = "";
+                txt.ForeColor = Color.Black;
+            }
+        }
+
+        private void txtEmailModify_Leave(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && string.IsNullOrWhiteSpace(txt.Text))
+            {
+                txt.Text = "Email";
+                txt.ForeColor = Color.DarkGray;
+            }
+        }
+
+        // =========================================
+        // PLACEHOLDER HANDLERS - CREATE ADMIN TAB
+        // =========================================
+        private void txtFirstAdminCreate_Enter(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && txt.ForeColor == Color.DarkGray)
+            {
+                txt.Text = "";
+                txt.ForeColor = Color.Black;
+            }
+        }
+
+        private void txtFirstAdminCreate_Leave(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && string.IsNullOrWhiteSpace(txt.Text))
+            {
+                txt.Text = "First Name";
+                txt.ForeColor = Color.DarkGray;
+            }
+        }
+
+        private void txtMiddleAdminCreate_Enter(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && txt.ForeColor == Color.DarkGray)
+            {
+                txt.Text = "";
+                txt.ForeColor = Color.Black;
+            }
+        }
+
+        private void txtMiddleAdminCreate_Leave(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && string.IsNullOrWhiteSpace(txt.Text))
+            {
+                txt.Text = "Middle Name";
+                txt.ForeColor = Color.DarkGray;
+            }
+        }
+
+        private void txtLastAdminCreate_Enter(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && txt.ForeColor == Color.DarkGray)
+            {
+                txt.Text = "";
+                txt.ForeColor = Color.Black;
+            }
+        }
+
+        private void txtLastAdminCreate_Leave(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && string.IsNullOrWhiteSpace(txt.Text))
+            {
+                txt.Text = "Last Name";
+                txt.ForeColor = Color.DarkGray;
+            }
+        }
+
+        private void txtSuffixAdminCreate_Enter(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && txt.ForeColor == Color.DarkGray)
+            {
+                txt.Text = "";
+                txt.ForeColor = Color.Black;
+            }
+        }
+
+        private void txtSuffixAdminCreate_Leave(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && string.IsNullOrWhiteSpace(txt.Text))
+            {
+                txt.Text = "Jr., Sr., I, III";
+                txt.ForeColor = Color.DarkGray;
+            }
+        }
+
+        private void txtAddressAdminCreate_Enter(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && txt.ForeColor == Color.DarkGray)
+            {
+                txt.Text = "";
+                txt.ForeColor = Color.Black;
+            }
+        }
+
+        private void txtAddressAdminCreate_Leave(object sender, EventArgs e)
+        {
+            var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
+            if (txt != null && string.IsNullOrWhiteSpace(txt.Text))
+            {
+                txt.Text = "Address";
+                txt.ForeColor = Color.DarkGray;
+            }
+        }
+
+        private void txtContactAdminCreate_Enter(object sender, EventArgs e)
         {
             var txt = sender as ReaLTaiizor.Controls.SmallTextBox;
             if (txt != null && txt.ForeColor == Color.DarkGray)

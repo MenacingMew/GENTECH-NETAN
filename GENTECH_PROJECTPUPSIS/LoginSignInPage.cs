@@ -9,7 +9,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using MySqlConnector;  
+using GENTECH_PROJECTPUPSIS;
+using MySqlConnector;
 
 namespace GENTECH_PROJECTPUPSIS
 {
@@ -20,8 +21,7 @@ namespace GENTECH_PROJECTPUPSIS
             InitializeComponent();
         }
 
-        private static string connectionString =
-            "server=localhost;port=3306;database=gentechdb_admin;uid=root;pwd=1234;";
+
 
         private void txtID_Enter(object sender, EventArgs e)
         {
@@ -65,6 +65,7 @@ namespace GENTECH_PROJECTPUPSIS
         {
             string username = txtID.Text;
             string password = txtPassword.Text;
+            string hashedPassword = HashPassword(password);
 
            
             if (username == "ID" || string.IsNullOrWhiteSpace(username))
@@ -118,26 +119,30 @@ namespace GENTECH_PROJECTPUPSIS
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-  
-        private bool AuthenticateAndLoadUser(string username, string password)
+
+        // Main authentication method
+        private bool AuthenticateAndLoadUser(string username, string hashedPassword)
         {
             try
             {
-                using (MySqlConnection conn = new MySqlConnection(connectionString))
+                using (MySqlConnection conn = DbConnection.GetConnection())
                 {
                     conn.Open();
 
-
-                    if (LoadStudentData(conn, username, password))
+                    // Try STUDENT (using Student_ID or Email)
+                    if (LoadStudentData(conn, username, hashedPassword))
                         return true;
 
-                    if (LoadFacultyData(conn, username, password))
+                    // Try FACULTY (using Faculty_ID or Email)
+                    if (LoadFacultyData(conn, username, hashedPassword))
                         return true;
 
-                    if (LoadEnrollmentStaffData(conn, username, password))
+                    // Try ENROLLMENT STAFF (using Credential_ID)
+                    if (LoadEnrollmentStaffData(conn, username, hashedPassword))
                         return true;
 
-                    if (LoadAdminData(conn, username, password))
+                    // Try ADMIN (using Admin_ID or Email)
+                    if (LoadAdminData(conn, username, hashedPassword))
                         return true;
                 }
             }
@@ -150,9 +155,10 @@ namespace GENTECH_PROJECTPUPSIS
             return false;
         }
 
- 
-        private bool LoadStudentData(MySqlConnection conn, string username, string password)
+        // Load STUDENT data
+        private bool LoadStudentData(MySqlConnection conn, string username, string hashedPassword)
         {
+
             bool isNumeric = int.TryParse(username, out int studentId);
 
             string query;
@@ -177,7 +183,7 @@ namespace GENTECH_PROJECTPUPSIS
                     cmd.Parameters.AddWithValue("@studentId", studentId);
                 else
                     cmd.Parameters.AddWithValue("@email", username);
-                cmd.Parameters.AddWithValue("@password", password);
+                cmd.Parameters.AddWithValue("@password", hashedPassword);
 
                 using (MySqlDataReader reader = cmd.ExecuteReader())
                 {
@@ -195,7 +201,7 @@ namespace GENTECH_PROJECTPUPSIS
                             programCode: reader["Program_Code"]?.ToString(),   
                             programName: reader["Program_Name"]?.ToString(),
                             section: reader["Section"] as int?,
-                            password: password
+                            password: hashedPassword
                         );
                         return true;
                     }
@@ -252,8 +258,8 @@ namespace GENTECH_PROJECTPUPSIS
             return false;
         }
 
-
-        private bool LoadEnrollmentStaffData(MySqlConnection conn, string username, string password)
+        // Load ENROLLMENT STAFF data
+        private bool LoadEnrollmentStaffData(MySqlConnection conn, string username, string hashpassword)
         {
             if (!int.TryParse(username, out int credentialId))
                 return false;
@@ -267,7 +273,7 @@ namespace GENTECH_PROJECTPUPSIS
             using (MySqlCommand cmd = new MySqlCommand(query, conn))
             {
                 cmd.Parameters.AddWithValue("@credentialId", credentialId);
-                cmd.Parameters.AddWithValue("@password", password);
+                cmd.Parameters.AddWithValue("@password", hashpassword);
 
                 using (MySqlDataReader reader = cmd.ExecuteReader())
                 {
@@ -286,7 +292,7 @@ namespace GENTECH_PROJECTPUPSIS
                             programCode: reader["Program_Code"]?.ToString(),   
                             programName: reader["Program_Name"]?.ToString(),
                             section: reader["Section"] as int?,
-                            password: password
+                            password: hashpassword
                         );
                         return true;
                     }
@@ -359,7 +365,8 @@ namespace GENTECH_PROJECTPUPSIS
 
             try
             {
-                using (MySqlConnection conn = new MySqlConnection(connectionString))
+                using (MySqlConnection conn = DbConnection.GetConnection())
+
                 {
                     conn.Open();
                     using (MySqlCommand cmd = new MySqlCommand(query, conn))
@@ -453,6 +460,14 @@ namespace GENTECH_PROJECTPUPSIS
         private void roundedButton5_Click(object sender, EventArgs e)
         {
             OpenUrl("https://www.facebook.com/pupsmbiskolarium");
+        }
+        private string HashPassword(string password)
+        {
+            using (var sha = System.Security.Cryptography.SHA256.Create())
+            {
+                byte[] bytes = sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                return Convert.ToBase64String(bytes);
+            }
         }
     }
 }

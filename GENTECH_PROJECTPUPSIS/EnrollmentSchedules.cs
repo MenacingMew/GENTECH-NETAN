@@ -8,78 +8,70 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 
 namespace GENTECH_PROJECTPUPSIS
 {
     public partial class EnrollmentSchedules : UserControl
     {
+
         public EnrollmentSchedules()
         {
-           
             InitializeComponent();
-            CreateSchedule();
+            BuildCalendarGrid();
+            LoadScheduleFromDatabase();
         }
 
         private KryptonDataGridView dgv;
 
-        private void CreateSchedule()
+        private void BuildCalendarGrid()
         {
-            // FORM
             this.Size = new Size(1002, 609);
 
-            // TITLE
-            Label lblTitle = new Label();
-            lblTitle.Text = "TIME TABLE SCHEDULE";
-            lblTitle.Font = new Font("Arial", 18, FontStyle.Bold);
-            lblTitle.AutoSize = true;
-            lblTitle.Location = new Point(450, 20);
-            this.Controls.Add(lblTitle);
-
-            // KRYPTON DATAGRIDVIEW
-            dgv = new KryptonDataGridView();
-
-            dgv.Location = new Point(40, 70);
-            dgv.Size = new Size(860, 850);
-
-            dgv.AllowUserToAddRows = false;
-            dgv.AllowUserToDeleteRows = false;
-            dgv.AllowUserToResizeRows = false;
-
-            dgv.RowHeadersVisible = false;
-
-            dgv.ColumnCount = 7;
-
-            dgv.Columns[0].Name = "Time";
-            dgv.Columns[1].Name = "Monday";
-            dgv.Columns[2].Name = "Tuesday";
-            dgv.Columns[3].Name = "Wednesday";
-            dgv.Columns[4].Name = "Thursday";
-            dgv.Columns[5].Name = "Friday";
-            dgv.Columns[6].Name = "Saturday";
-
-            // COLUMN WIDTHS
-            dgv.Columns[0].Width = 120;
-
-            for (int i = 1; i < 7; i++)
+            Label title = new Label
             {
-                dgv.Columns[i].Width = 120;
-            }
+                Text = "CLASS SCHEDULE",
+                Font = new Font("Arial", 18, FontStyle.Bold),
+                AutoSize = true,
+                Location = new Point(420, 20)
+            };
 
-            // HEADER STYLE
-            dgv.EnableHeadersVisualStyles = false;
+            this.Controls.Add(title);
+
+            dgv = new KryptonDataGridView
+            {
+                Location = new Point(40, 70),
+                Size = new Size(900, 480),
+                AllowUserToAddRows = false,
+                AllowUserToDeleteRows = false,
+                ReadOnly = true,
+                RowHeadersVisible = false,
+                ScrollBars = ScrollBars.Both
+            };
 
             dgv.ColumnHeadersDefaultCellStyle.BackColor = Color.BurlyWood;
-            dgv.ColumnHeadersDefaultCellStyle.ForeColor = Color.Black;
-            dgv.ColumnHeadersDefaultCellStyle.Font =
-                new Font("Arial", 10, FontStyle.Bold);
+            dgv.EnableHeadersVisualStyles = false;
 
-            dgv.ColumnHeadersHeight = 40;
+            // Columns (Calendar style)
+            dgv.Columns.Add("Time", "Time");
+            dgv.Columns.Add("Mon", "Monday");
+            dgv.Columns.Add("Tue", "Tuesday");
+            dgv.Columns.Add("Wed", "Wednesday");
+            dgv.Columns.Add("Thu", "Thursday");
+            dgv.Columns.Add("Fri", "Friday");
+            dgv.Columns.Add("Sat", "Saturday");
 
-            // CREATE TIME ROWS
-            DateTime start = DateTime.Parse("5:00 AM");
+            dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
-            for (int i = 0; i < 34; i++)
+            GenerateTimeRows();
+
+            this.Controls.Add(dgv);
+        }
+        private void GenerateTimeRows()
+        {
+            DateTime start = DateTime.Parse("05:00 AM");
+
+            for (int i = 0; i < 30; i++)
             {
                 DateTime end = start.AddMinutes(30);
 
@@ -90,74 +82,136 @@ namespace GENTECH_PROJECTPUPSIS
 
                 start = end;
             }
-
-            // ROW HEIGHT
-            foreach (DataGridViewRow row in dgv.Rows)
+        }
+        private void LoadScheduleFromDatabase()
+        {
+            try
             {
-                row.Height = 45;
+                using (MySqlConnection conn = DbConnection.GetConnection())
+                {
+                    conn.Open();
+
+                    string query = @"
+            SELECT 
+                Day,
+                Start_Time,
+                End_Time,
+                c.Course_Name,
+                CONCAT(f.First_Name, ' ', f.Last_Name) AS Faculty
+            FROM schedule s
+            LEFT JOIN course c ON s.Course_ID = c.Course_ID
+            LEFT JOIN faculty f ON s.Faculty_ID = f.Faculty_ID";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            // Skip if start or end time is missing
+                            if (reader["Start_Time"] == DBNull.Value || reader["End_Time"] == DBNull.Value)
+                                continue;
+
+                            string day = reader["Day"].ToString();
+                            int col = GetDayColumn(day);
+
+                            TimeSpan startTime = (TimeSpan)reader["Start_Time"];
+                            TimeSpan endTime = (TimeSpan)reader["End_Time"];
+
+                            if (col != -1)
+                            {
+                                TimeSpan currentSlot = startTime;
+                                bool isFirstSlot = true;
+
+                                // Loop through all 30-minute blocks between Start_Time and End_Time
+                                while (currentSlot < endTime)
+                                {
+                                    string timeKey = currentSlot.ToString(@"hh\:mm");
+                                    int row = FindRowByTime(timeKey);
+
+                                    if (row != -1)
+                                    {
+                                        var cell = dgv.Rows[row].Cells[col];
+
+                                        // Only write the course text in the first block to keep it clean
+                                        if (isFirstSlot)
+                                        {
+                                            cell.Value = $"{reader["Course_Name"]}\n{reader["Faculty"]}";
+                                            isFirstSlot = false;
+                                        }
+
+                                        // Color all blocks the class occupies
+                                        cell.Style = new DataGridViewCellStyle
+                                        {
+                                            Alignment = DataGridViewContentAlignment.MiddleCenter,
+                                            Font = new Font("Arial", 9, FontStyle.Bold),
+                                            BackColor = Color.LightSkyBlue
+                                        };
+                                    }
+
+                                    // Advance to the next 30-minute slot
+                                    currentSlot = currentSlot.Add(TimeSpan.FromMinutes(30));
+                                }
+                            }
+                        }
+                    }
+                }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Schedule load failed: " + ex.Message);
+            }
+        }
+        private int FindRowByTime(string timeKey)
+        {
+            for (int i = 0; i < dgv.Rows.Count; i++)
+            {
+                if (dgv.Rows[i].Cells[0].Value != null)
+                {
+                    string cell = dgv.Rows[i].Cells[0].Value.ToString();
 
-            // SAMPLE SUBJECTS
-            AddSubject(
-                row: 6,
-                col: 3,
-                text:
-                "COMP 012\nNetwork Administration\n\nProf. John Simon Mendoza",
-                color: Color.LightBlue
-            );
+                    // extract start time from "05:00 AM - 05:30 AM"
+                    string rowTime = cell.Split('-')[0].Trim();
 
-            AddSubject(
-                row: 12,
-                col: 4,
-                text:
-                "COMP 009\nObject Oriented Programming\n\nProf. Jayson Hermogenes",
-                color: Color.SkyBlue
-            );
+                    if (DateTime.TryParse(rowTime, out DateTime parsedRow))
+                    {
+                        // FIX: Used "HH:mm" to ensure PM times format as 13:00, 14:00, etc.
+                        string rowKey = parsedRow.ToString("HH:mm");
 
-            AddSubject(
-                row: 12,
-                col: 6,
-                text:
-                "COMP 013\nHuman Computer Interaction\n\nProf. Bryan Asistin",
-                color: Color.LightPink
-            );
-
-            AddSubject(
-                row: 10,
-                col: 5,
-                text:
-                "PATHFIT 4\nPhysical Activities Towards Health",
-                color: Color.Plum
-            );
-
-            AddSubject(
-                row: 18,
-                col: 1,
-                text:
-                "COMP 014\nQuantitative Methods with Modeling and Simulation",
-                color: Color.MediumTurquoise
-            );
-
-            this.Controls.Add(dgv);
+                        if (rowKey == timeKey)
+                            return i;
+                    }
+                }
+            }
+            return -1;
         }
 
-        private void AddSubject(
-            int row,
-            int col,
-            string text,
-            Color color)
+        private int GetDayColumn(string day)
         {
-            dgv.Rows[row].Cells[col].Value = text;
+            switch (day.ToLower())
+            {
+                case "monday": return 1;
+                case "tuesday": return 2;
+                case "wednesday": return 3;
+                case "thursday": return 4;
+                case "friday": return 5;
+                case "saturday": return 6;
+                default: return -1;
+            }
+        }
+        private void ShowEmptyState()
+        {
+            Label empty = new Label();
+            empty.Text = "No schedules available yet";
+            empty.Font = new Font("Arial", 12, FontStyle.Italic);
+            empty.ForeColor = Color.Gray;
+            empty.AutoSize = true;
+            empty.Location = new Point(380, 300);
 
-            dgv.Rows[row].Cells[col].Style.BackColor = color;
+            this.Controls.Add(empty);
+        }
+        private void EnrollmentSchedules_Load(object sender, EventArgs e)
+        {
 
-            dgv.Rows[row].Cells[col].Style.Alignment =
-                DataGridViewContentAlignment.MiddleCenter;
-
-            dgv.Rows[row].Cells[col].Style.Font =
-                new Font("Arial", 9, FontStyle.Bold);
-
-            dgv.Rows[row].Height = 120;
         }
     }
 }

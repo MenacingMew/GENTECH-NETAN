@@ -14,46 +14,23 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
+using System.Text.RegularExpressions;
+
 
 namespace WindowsFormsApp1
 {
     public partial class EnrollmentRegistration : Form
     {
-        private string connString = "server=127.0.0.1;uid=root;pwd=;database=wawa;";
+
+
         public EnrollmentRegistration()
         {
             InitializeComponent();
             SetupBirthdatePicker(poisonDateTime1);
             SetupBirthdatePicker(poisonDateTime2);
         }
-        public long GenerateNextStudentID(string connectionString)
-        {
-            long defaultStartingID = 2024000010;
+        
 
-            string query = "SELECT MAX(Student_ID) FROM student WHERE Student_ID >= 2024000000 AND Student_ID <= 2024999999;";
-
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
-                conn.Open();
-                using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                {
-                    object result = cmd.ExecuteScalar();
-
-                    if (result != null && result != DBNull.Value)
-                    {
-                        long currentMaxID = Convert.ToInt64(result);
-
-                        long sequence = currentMaxID / 10; 
-                        sequence++;                        
-                        long nextID = sequence * 10;       
-
-                        return nextID;
-                    }
-                }
-            }
-
-            return defaultStartingID;
-        }
 
 
         private void SetupBirthdatePicker(DateTimePicker dtp)
@@ -101,84 +78,74 @@ namespace WindowsFormsApp1
 
         bool allowChange = false;
 
+     
         private void txtConfirm_Click(object sender, EventArgs e)
         {
-            if (!cbxConfirm.Checked) 
+            // 1. VALIDATE FIRST
+            if (!cbxConfirm.Checked ||
+                txtNameSchool.Text == "" ||
+                txtAddressSchool.Text == "" ||
+                pictureBox1.Image == null ||
+                numGWA11.Value == 0 ||
+                numGWA12.Value == 0)
             {
-                MessageBox.Show("You must read and agree to the Terms and Conditions before submitting your application.",
-                                "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please complete all required fields.");
                 return;
             }
 
             try
             {
-                long newStudentID = GenerateNextStudentID(connString);
 
-                using (MySqlConnection conn = new MySqlConnection(connString))
+                using (MySqlConnection conn = DbConnection.GetConnection())
                 {
                     conn.Open();
 
-                    string studentQuery = @"INSERT INTO student
-                    (Student_ID, First_Name, Last_Name, Email, Birth_Date)
-                                     VALUES
-                    (@StudentID, @FirstName, @LastName, @Email, @BirthDate);";
+                    string query = @"
+                    INSERT INTO temporary_student
+                    (
+                        FirstName,
+                        MiddleName,
+                        LastName,
+                        Email
+                    )
+                    VALUES
+                    (
+                        @fname,
+                        @mname,
+                        @lname,
+                        @email
+                    )";
 
-                    using (MySqlCommand cmdStudent = new MySqlCommand(studentQuery, conn))
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
                     {
-                        cmdStudent.Parameters.AddWithValue("@StudentID", newStudentID);
-                        cmdStudent.Parameters.AddWithValue("@FirstName", txtFirstName.Text);
-                        cmdStudent.Parameters.AddWithValue("@LastName", txtLastName.Text);
-                        cmdStudent.Parameters.AddWithValue("@Email", txtEmail.Text);
-                        cmdStudent.Parameters.AddWithValue("@BirthDate", poisonDateTime1.Value);
+                        cmd.Parameters.AddWithValue("@fname", txtFirstName.Text.Trim());
+                        cmd.Parameters.AddWithValue("@mname", txtMiddleName.Text.Trim());
+                        cmd.Parameters.AddWithValue("@lname", txtLastName.Text.Trim());
+                        cmd.Parameters.AddWithValue("@email", txtEmail.Text.Trim());
 
-                        cmdStudent.ExecuteNonQuery();
+                        cmd.ExecuteNonQuery();
                     }
 
-                  
+                    MessageBox.Show(
+                        "Application submitted successfully.\n\nWaiting for admission approval.",
+                        "Success",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information
 
+
+                    );
                 }
 
-                MessageBox.Show($"Application Submitted Successfully!\n\n" +
-                                $"Your assigned Student ID is: {newStudentID}\n" +
-                                $"Status: Pending Verification",
-                                "Submission Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                this.Hide();
 
-                this.Close();
+                LoginFormPUPSIS login = new LoginFormPUPSIS();
+                login.FormClosed += (s, args) => this.Close();
+                login.Show();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to submit student application: {ex.Message}", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Database error: " + ex.Message);
             }
-
-            if (!cbxConfirm.Checked || txtNameSchool.ForeColor == Color.DarkGray || txtAddressSchool.ForeColor == Color.DarkGray ||
-                numGWA12.Value == 0 || numGWA11.Value == 0 || cmbTypeSchool.ForeColor == Color.DarkGray || pictureBox1.Image == null ||
-                txtNameSchool.Text == "" || txtAddressSchool.Text == ""
-                )
-            {
-
-                if (!cbxConfirm.Checked)
-                    lblConfirmWarning.Visible = true;
-                if (txtNameSchool.ForeColor == Color.DarkGray || txtNameSchool.Text == "")
-                    lblNameSchoolWarning.Visible = true;
-                if (txtAddressSchool.ForeColor == Color.DarkGray || txtAddressSchool.Text == "")
-                    lblAddressSchoolWarning.Visible = true;
-                if (numGWA11.Value == 0)
-                    lblGWA11Warning.Visible = true;
-                if (numGWA12.Value == 0)
-                    lblGWA11Warning.Visible = true;
-                if (cmbTypeSchool.ForeColor == Color.DarkGray || cmbTypeSchool.SelectedIndex == 0)
-                    lblTypeSchoolWarning.Visible = true;
-                if (pictureBox1.Image == null)
-                    lblGradeCardWarning.Visible = true;
-
-            }
-            else
-            {
-                LoginFormPUPSIS loginForm = new LoginFormPUPSIS();
-                loginForm.Show();
-                this.Close();
-            }
-
         }
 
         private void foreverTabPage1_Selecting(object sender, TabControlCancelEventArgs e)
@@ -189,60 +156,77 @@ namespace WindowsFormsApp1
             }
         }
 
-        
+        //__________________________________________
+        //Validetor
+        //_________________________________________
+
+        bool IsValidEmail(string email)
+        {
+            return Regex.IsMatch(email, @"^[a-zA-Z0-9._%+-]+@gmail\.com$");
+        }
+
+        //================================================
+        //==================================================
+       
+
+
+
         private void btmNext2_Click(object sender, EventArgs e)
         {
-          
-            // 1. Hide all warnings first to "reset" the view
-            lblFirstWarning.Visible = false;
-            lblMiddleWarning.Visible = false;
-            lblLastWarning.Visible = false;
-            lblEmailWarning.Visible = false;
-            lblCivilWarning.Visible = false;
-            lblPictureWarning.Visible = false;
-            lblCityWarning.Visible = false;
-            lblRegionWarning.Visible = false;
-            lblCountryWarning.Visible = false;
-            lblSexWarning.Visible = false;
+            string email = txtEmail.Text.Trim();
+
+            if (!IsValidEmail(email))
+            {
+                MessageBox.Show("Please enter a valid @gmail.com address.");
+                return;
+            }
 
             bool isValid = true;
 
-            // 2. Validate each field individually
-            if (txtFirstName.Text == "" || txtFirstName.ForeColor == Color.DarkGray) { lblFirstWarning.Visible = true; isValid = false; }
-            if (txtMiddleName.Text == "" || txtMiddleName.ForeColor == Color.DarkGray) { lblMiddleWarning.Visible = true; isValid = false; }
-            if (txtLastName.Text == "" || txtLastName.ForeColor == Color.DarkGray) { lblLastWarning.Visible = true; isValid = false; }
-            if (txtEmail.Text == "" || txtEmail.ForeColor == Color.DarkGray) { lblEmailWarning.Visible = true; isValid = false; }
+            if (txtFirstName.Text == "" || txtFirstName.ForeColor == Color.DarkGray)
+                isValid = false;
 
-            if (cmbCivil.SelectedIndex <= 0) { lblCivilWarning.Visible = true; isValid = false; }
-            if (cmbSex.SelectedIndex <= 0) { lblSexWarning.Visible = true; isValid = false; }
-            if (cmbCountry.SelectedIndex <= 0) { lblCountryWarning.Visible = true; isValid = false; }
-            if (cmbRegion.SelectedIndex <= 0) { lblRegionWarning.Visible = true; isValid = false; }
-            if (cmbCity.SelectedIndex <= 0) { lblCityWarning.Visible = true; isValid = false; }
+            if (txtMiddleName.Text == "" || txtMiddleName.ForeColor == Color.DarkGray)
+                isValid = false;
 
-            if (pictureBox2.Image == null) { lblPictureWarning.Visible = true; isValid = false; }
+            if (txtLastName.Text == "" || txtLastName.ForeColor == Color.DarkGray)
+                isValid = false;
 
-            // 3. The Decision
+            if (txtEmail.Text == "" || txtEmail.ForeColor == Color.DarkGray)
+                isValid = false;
+
+            if (cmbCivil.SelectedIndex <= 0) isValid = false;
+            if (cmbSex.SelectedIndex <= 0) isValid = false;
+            if (cmbCountry.SelectedIndex <= 0) isValid = false;
+            if (cmbRegion.SelectedIndex <= 0) isValid = false;
+            if (cmbCity.SelectedIndex <= 0) isValid = false;
+            if (pictureBox2.Image == null) isValid = false;
+
             if (!isValid)
             {
-                MessageBox.Show(
-                    "Your application cannot proceed because some required information is missing.\n\nPlease complete all fields and review your details before continuing.",
-                    "Application Incomplete",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
-            }
-            else
-            {
-                // Success! Move to the next tab
-                allowChange = true;
-                tabAll.SelectedIndex = 1;
-                allowChange = false;
+                MessageBox.Show("Please complete all required fields first.");
+                return;
             }
 
+            allowChange = true;
+            tabAll.SelectedIndex = 1;
+            allowChange = false;
         }
+        //
+        /// <summary>
+        /// 
+        ///==============================================================================
+        /// </summary>
+        /// <returns></returns>
+      
 
+       
 
+        //---------------------------------------------------------------------------------------
+        //
+        //------------------------------------------------------------------------------------
         private void btnNext4_Click(object sender, EventArgs e)
-        {
+            {
             if (
                 txtNumber.ForeColor == Color.DarkGray || cmbRegion3.ForeColor == Color.DarkGray ||
                 cmbCity3.ForeColor == Color.DarkGray || txtBarangay.ForeColor == Color.DarkGray ||

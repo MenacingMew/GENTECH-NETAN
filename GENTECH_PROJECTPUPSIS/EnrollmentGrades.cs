@@ -1,47 +1,94 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using MySql.Data.MySqlClient;
+using MySqlConnector; // Using the connector from your previous file
 
 namespace GENTECH_PROJECTPUPSIS
 {
     public partial class EnrollmentGrades : UserControl
     {
+        // Replace this with the ID of the currently logged-in student later
+        private int currentStudentId = 1;
+
         public EnrollmentGrades()
         {
             InitializeComponent();
-
-            DummiesBasicToKungfu("COMP 009", "Object Oriented Programming", 3.0, "HERMOGENES, JAYSON", 5.0, "Failed");
-            DummiesBasicToKungfu("COMP 010", "Information Management", 3.0, "BANTOG, JAREV", 5.0, "Failed");
-            DummiesBasicToKungfu("COMP 012", "Network Administration", 3.0, "MENDOZA, JOHN SIMON", 5.0, "Failed");
-            DummiesBasicToKungfu("COMP 013", "Human Computer Interaction", 3.0, "ASISTIN, BRYAN LAWRENCE", 5.0, "Failed");
-            DummiesBasicToKungfu("COMP 014", "Quantitative Methods with Modeling and Simulation", 3.0, "MENDOZA, JOHN SIMON", 5.0, "Failed");
-            DummiesBasicToKungfu("ELEC IT-FE2", "BSIT Free Elective 2", 3.0, "PASCUAL, MARK JONATHAN", 5.0, "Failed");
-            DummiesBasicToKungfu("INTE 202", "Integrative Programming and Technologies 1", 3.0, "SARMIENTO, PHILIP LORENZ", 5.0, "INC");
-            DummiesBasicToKungfu("PATHFIT 4", "Physical Activity Towards Health and Fitness 4", 2.0, "MIRANDA JR., MANUEL", 1.0, "Passed");
-
+            LoadGradesFromDatabase(currentStudentId);
         }
 
-        private void DummiesBasicToKungfu(string code, string description, double units, string faculty, double grades, string stat)
+        private void LoadGradesFromDatabase(int studentId)
         {
-            int index = kryptonDataGridView2.Rows.Add();
-            DataGridViewRow row = kryptonDataGridView2.Rows[index];
-            
-            row.Cells[0].Value = code;
-            row.Cells[1].Value = description;
-            row.Cells[2].Value = units;
-            row.Cells[3].Value = faculty;
-            row.Cells[4].Value = grades;
-            row.Cells[5].Value = stat;
+            kryptonDataGridView2.Rows.Clear(); // Clear any existing rows
 
+            try
+            {
+                using (MySqlConnection conn = DbConnection.GetConnection())
+                {
+                    conn.Open();
+
+                    // This query uses JOINs to get the text names associated with your IDs.
+                    // Note: You may need to adjust the JOINs depending on how Assessment_ID links to Courses!
+                    string query = @"
+                    SELECT 
+                        c.Course_Code, 
+                        c.Course_Name, 
+                        c.Units, 
+                        CONCAT(f.First_Name, ' ', f.Last_Name) AS Faculty, 
+                        g.Score AS Grade
+                    FROM grades g
+                    LEFT JOIN assessment a ON g.Assessment_ID = a.Assessment_ID
+                    LEFT JOIN schedule s ON a.Schedule_ID = s.Schedule_ID
+                    LEFT JOIN course c ON s.Course_ID = c.Course_ID
+                    LEFT JOIN faculty f ON s.Faculty_ID = f.Faculty_ID
+                    WHERE g.Student_ID = @StudentId";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@StudentId", studentId);
+
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                // Use ternary operators to check for DBNull safely
+                                string code = reader["Course_Code"] != DBNull.Value ? reader["Course_Code"].ToString() : "N/A";
+                                string description = reader["Course_Name"] != DBNull.Value ? reader["Course_Name"].ToString() : "Unknown Course";
+                                double units = reader["Units"] != DBNull.Value ? Convert.ToDouble(reader["Units"]) : 0.0;
+                                string faculty = reader["Faculty"] != DBNull.Value ? reader["Faculty"].ToString() : "TBA";
+                                double grade = reader["Grade"] != DBNull.Value ? Convert.ToDouble(reader["Grade"]) : 0.0;
+
+                                string status = DetermineGradeStatus(grade);
+
+                                kryptonDataGridView2.Rows.Add(code, description, units, faculty, grade, status);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load grades: " + ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
+        // Helper method to compute pass/fail logic
+        private string DetermineGradeStatus(double grade)
+        {
+            // Assuming PUP grading system (1.0 to 3.0 is Pass, 5.0 is Fail)
+            if (grade >= 1.0 && grade <= 3.0)
+            {
+                return "Passed";
+            }
+            else if (grade == 5.0)
+            {
+                return "Failed";
+            }
+            else if (grade == 0.0) // Assuming 0.0 represents Incomplete in your DB
+            {
+                return "INC";
+            }
 
+            return "Withdrawn/Unknown";
+        }
     }
 }
