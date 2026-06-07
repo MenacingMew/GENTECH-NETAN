@@ -49,10 +49,10 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.kryptonPanel1 = new ComponentFactory.Krypton.Toolkit.KryptonPanel();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
+            this.lblSemester = new System.Windows.Forms.Label();
+            this.lblProgram = new System.Windows.Forms.Label();
+            this.lblName = new System.Windows.Forms.Label();
+            this.lblAY = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.dvgEnrollment = new ComponentFactory.Krypton.Toolkit.KryptonDataGridView();
@@ -329,10 +329,10 @@
             // 
             // kryptonPanel1
             // 
-            this.kryptonPanel1.Controls.Add(this.label10);
-            this.kryptonPanel1.Controls.Add(this.label9);
-            this.kryptonPanel1.Controls.Add(this.label8);
-            this.kryptonPanel1.Controls.Add(this.label7);
+            this.kryptonPanel1.Controls.Add(this.lblSemester);
+            this.kryptonPanel1.Controls.Add(this.lblProgram);
+            this.kryptonPanel1.Controls.Add(this.lblName);
+            this.kryptonPanel1.Controls.Add(this.lblAY);
             this.kryptonPanel1.Controls.Add(this.label6);
             this.kryptonPanel1.Controls.Add(this.label5);
             this.kryptonPanel1.Location = new System.Drawing.Point(22, 113);
@@ -344,59 +344,59 @@
             this.kryptonPanel1.StateNormal.Color2 = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.kryptonPanel1.TabIndex = 64;
             // 
-            // label10
+            // lblSemester
             // 
-            this.label10.AutoSize = true;
-            this.label10.BackColor = System.Drawing.Color.Transparent;
-            this.label10.Font = new System.Drawing.Font("Segoe UI", 15F, System.Drawing.FontStyle.Bold);
-            this.label10.ForeColor = System.Drawing.Color.Maroon;
-            this.label10.Location = new System.Drawing.Point(45, 286);
-            this.label10.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(95, 28);
-            this.label10.TabIndex = 64;
-            this.label10.Text = "2nd SEM";
-            this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblSemester.AutoSize = true;
+            this.lblSemester.BackColor = System.Drawing.Color.Transparent;
+            this.lblSemester.Font = new System.Drawing.Font("Segoe UI", 15F, System.Drawing.FontStyle.Bold);
+            this.lblSemester.ForeColor = System.Drawing.Color.Maroon;
+            this.lblSemester.Location = new System.Drawing.Point(45, 286);
+            this.lblSemester.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblSemester.Name = "lblSemester";
+            this.lblSemester.Size = new System.Drawing.Size(95, 28);
+            this.lblSemester.TabIndex = 64;
+            this.lblSemester.Text = "2nd SEM";
+            this.lblSemester.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // label9
+            // lblProgram
             // 
-            this.label9.BackColor = System.Drawing.Color.Transparent;
-            this.label9.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
-            this.label9.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.label9.Location = new System.Drawing.Point(9, 150);
-            this.label9.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label9.MaximumSize = new System.Drawing.Size(176, 71);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(176, 71);
-            this.label9.TabIndex = 63;
-            this.label9.Text = "Bachelor of Science in Hospitality Management";
+            this.lblProgram.BackColor = System.Drawing.Color.Transparent;
+            this.lblProgram.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
+            this.lblProgram.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.lblProgram.Location = new System.Drawing.Point(9, 150);
+            this.lblProgram.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblProgram.MaximumSize = new System.Drawing.Size(176, 71);
+            this.lblProgram.Name = "lblProgram";
+            this.lblProgram.Size = new System.Drawing.Size(176, 71);
+            this.lblProgram.TabIndex = 63;
+            this.lblProgram.Text = "Bachelor of Science in Hospitality Management";
             // 
-            // label8
+            // lblName
             // 
-            this.label8.BackColor = System.Drawing.Color.Transparent;
-            this.label8.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
-            this.label8.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.label8.Location = new System.Drawing.Point(9, 46);
-            this.label8.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label8.MaximumSize = new System.Drawing.Size(176, 53);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(176, 53);
-            this.label8.TabIndex = 60;
-            this.label8.Text = "Tuliao, Jenaro Benedict";
+            this.lblName.BackColor = System.Drawing.Color.Transparent;
+            this.lblName.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
+            this.lblName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.lblName.Location = new System.Drawing.Point(9, 46);
+            this.lblName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblName.MaximumSize = new System.Drawing.Size(176, 53);
+            this.lblName.Name = "lblName";
+            this.lblName.Size = new System.Drawing.Size(176, 53);
+            this.lblName.TabIndex = 60;
+            this.lblName.Text = "Tuliao, Jenaro Benedict";
             // 
-            // label7
+            // lblAY
             // 
-            this.label7.AutoSize = true;
-            this.label7.BackColor = System.Drawing.Color.Transparent;
-            this.label7.Font = new System.Drawing.Font("Segoe UI", 15F, System.Drawing.FontStyle.Bold);
-            this.label7.ForeColor = System.Drawing.Color.Maroon;
-            this.label7.Location = new System.Drawing.Point(20, 259);
-            this.label7.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(153, 28);
-            this.label7.TabIndex = 62;
-            this.label7.Text = "A.Y 2026-2027";
-            this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblAY.AutoSize = true;
+            this.lblAY.BackColor = System.Drawing.Color.Transparent;
+            this.lblAY.Font = new System.Drawing.Font("Segoe UI", 15F, System.Drawing.FontStyle.Bold);
+            this.lblAY.ForeColor = System.Drawing.Color.Maroon;
+            this.lblAY.Location = new System.Drawing.Point(20, 259);
+            this.lblAY.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblAY.Name = "lblAY";
+            this.lblAY.Size = new System.Drawing.Size(153, 28);
+            this.lblAY.TabIndex = 62;
+            this.lblAY.Text = "A.Y 2026-2027";
+            this.lblAY.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // label6
             // 
@@ -547,10 +547,10 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private ComponentFactory.Krypton.Toolkit.KryptonPanel kryptonPanel1;
-        private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label lblSemester;
+        private System.Windows.Forms.Label lblProgram;
+        private System.Windows.Forms.Label lblName;
+        private System.Windows.Forms.Label lblAY;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label5;
         private ComponentFactory.Krypton.Toolkit.KryptonDataGridView dvgEnrollment;

@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.panel1 = new System.Windows.Forms.Panel();
             this.label4 = new System.Windows.Forms.Label();
             this.foreverTabPage1 = new ReaLTaiizor.Controls.ForeverTabPage();
@@ -209,8 +209,8 @@
             this.kryptonDataGridView2.ReadOnly = true;
             this.kryptonDataGridView2.RowHeadersVisible = false;
             this.kryptonDataGridView2.RowHeadersWidth = 51;
-            dataGridViewCellStyle1.Format = "n1";
-            this.kryptonDataGridView2.RowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle2.Format = "n1";
+            this.kryptonDataGridView2.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.kryptonDataGridView2.Size = new System.Drawing.Size(903, 268);
             this.kryptonDataGridView2.StateNormal.Background.Color1 = System.Drawing.Color.WhiteSmoke;
             this.kryptonDataGridView2.StateNormal.Background.Color2 = System.Drawing.SystemColors.Control;
