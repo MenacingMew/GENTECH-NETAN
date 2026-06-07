@@ -22,8 +22,21 @@ namespace GENTECH_PROJECTPUPSIS
         public EnrollmentHome()
         {
             InitializeComponent();
+            this.VisibleChanged += EnrollmentHome_VisibleChanged;
+        }
+        private void EnrollmentHome_VisibleChanged(object sender, EventArgs e)
+        {
+            
+            RefreshStudentData();
+  
         }
 
+        private void RefreshStudentData()
+        {
+           
+            DisplayStaffInfo();
+            LoadEnrollmentStats();  
+        }
         private void EnrollmentHome_Load(object sender, EventArgs e)
         {
             DisplayStaffInfo();
@@ -32,7 +45,7 @@ namespace GENTECH_PROJECTPUPSIS
             LoadEnrollmentStats();
             LoadStudentGWA();
         }
-
+            
         private void DisplayStaffInfo()
         {
             if (!UserSession.IsLoggedIn || !UserSession.IsEnrollmentStaff())
@@ -350,37 +363,171 @@ namespace GENTECH_PROJECTPUPSIS
             }
         }
 
-        private void btnEnrollNow_Click(object sender, EventArgs e)
+        private async void btnEnrollNow_Click(object sender, EventArgs e)
         {
-            if (!UserSession.IsEnrollmentStaff())
+            bool hasPaymentDue = await CheckIfStudentHasPaymentDue();
+
+            if (hasPaymentDue)
             {
-                MessageBox.Show("You don't have permission to access enrollment.",
-                    "Access Denied", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                DialogResult result = MessageBox.Show(
+                    "You have an outstanding balance. Please settle your payment before enrolling.\n\n" +
+                    "Would you like to go to the Accounts section now?",
+                    "Payment Required",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+
+                if (result == DialogResult.Yes)
+                {
+                    EnrollmentMainForm main2 = (EnrollmentMainForm)this.FindForm();
+                    if (main2 != null)
+                    {
+                        main2.LoadControl(new EnrollmentAccounts());
+                    }
+                }
                 return;
             }
 
-            EnrollmentMainForm main = (EnrollmentMainForm)this.FindForm();
-            if (main != null)
+            // Check if already enrolled
+            bool isAlreadyEnrolled = await CheckIfAlreadyEnrolled();
+
+            if (isAlreadyEnrolled)
             {
-                main.LoadControl(new EnrollmentConfirmation());
+                MessageBox.Show("You are already enrolled for the current semester.",
+                    "Already Enrolled",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
+
+            EnrollmentMainForm mainForm = (EnrollmentMainForm)this.FindForm();
+            if (mainForm != null)
+            {
+                mainForm.LoadControl(new EnrollmentConfirmation());
             }
         }
 
-        private string GetCurrentSemester()
+        private async Task<bool> CheckIfAlreadyEnrolled()
         {
-            int month = DateTime.Now.Month;
-            if (month >= 8 && month <= 12) return "1st Semester";
-            else if (month >= 1 && month <= 5) return "2nd Semester";
-            else return "Summer";
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(connectionString))
+                {
+                    await conn.OpenAsync();
+
+                    int studentId = UserSession.EnrollmentStudentID ?? 0;
+                    int semesterId = GetCurrentSemesterID();
+
+                    string query = @"SELECT COUNT(*) FROM enrollment 
+                            WHERE Student_ID = @studentId 
+                            AND Semester_ID = @semesterId 
+                            AND Enrollment_Status = 'Enrolled'";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@studentId", studentId);
+                        cmd.Parameters.AddWithValue("@semesterId", semesterId);
+
+                        int count = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+                        return count > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking enrollment: {ex.Message}");
+                return false;
+            }
+        }
+        private int GetCurrentSemesterID()
+        {
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    DateTime today = DateTime.Now;
+
+                    
+                    string query = @"SELECT Semester_ID 
+                            FROM semester 
+                            WHERE Start_Date <= @today AND End_Date >= @today
+                            ORDER BY Semester_ID DESC 
+                            LIMIT 1";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@today", today);
+
+                        object result = cmd.ExecuteScalar();
+
+                        if (result != null)
+                        {
+                            return Convert.ToInt32(result);
+                        }
+                    }
+
+                   
+                    string fallbackQuery = "SELECT Semester_ID FROM semester ORDER BY Start_Date DESC LIMIT 1";
+                    using (MySqlCommand fallbackCmd = new MySqlCommand(fallbackQuery, conn))
+                    {
+                        object result = fallbackCmd.ExecuteScalar();
+                        if (result != null)
+                        {
+                            return Convert.ToInt32(result);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting semester: {ex.Message}");
+            }
+
+            return 1; 
         }
 
-        private string GetCurrentAcademicYear()
+        private async Task<bool> CheckIfStudentHasPaymentDue()
         {
-            int year = DateTime.Now.Year;
-            int month = DateTime.Now.Month;
-            if (month >= 6) return $"{year}-{year + 1}";
-            else return $"{year - 1}-{year}";
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(connectionString))
+                {
+                    await conn.OpenAsync();
+
+                    int studentId = UserSession.EnrollmentStudentID ?? 0;
+                    int semesterId = GetCurrentSemesterID();
+
+                    string query = @"SELECT Total_Amount_Due FROM statement_of_account 
+                            WHERE Student_ID = @studentId 
+                            AND Semester_ID = @semesterId
+                            ORDER BY Statement_Of_Account_ID DESC LIMIT 1";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@studentId", studentId);
+                        cmd.Parameters.AddWithValue("@semesterId", semesterId);
+
+                        object result = await cmd.ExecuteScalarAsync();
+
+                        if (result != null && result != DBNull.Value)
+                        {
+                            decimal totalDue = Convert.ToDecimal(result);
+                            return totalDue > 0;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking payment: {ex.Message}");
+                return false;
+            }
+
+            return false;
         }
+
+     
 
         private void btnRefresh_Click(object sender, EventArgs e)
         {
