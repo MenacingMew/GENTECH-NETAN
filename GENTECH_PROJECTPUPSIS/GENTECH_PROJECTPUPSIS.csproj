@@ -440,9 +440,7 @@
     <Compile Include="FcultyClassScheduleView.Designer.cs">
       <DependentUpon>FcultyClassScheduleView.cs</DependentUpon>
     </Compile>
-    <Compile Include="AdminStudentRecords.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Include="AdminStudentRecords.cs" />
     <Compile Include="AdminStudentRecords.Designer.cs">
       <DependentUpon>AdminStudentRecords.cs</DependentUpon>
     </Compile>
